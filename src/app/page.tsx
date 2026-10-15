@@ -13,13 +13,18 @@ import { GreetingCardModal } from '@/components/GreetingCardModal';
 import { OrderBuilderModal } from '@/components/OrderBuilderModal';
 import { LoginModal } from '@/components/LoginModal';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { SupabaseSetupModal } from '@/components/SupabaseSetupModal';
 import { Invoice, CatalogItem } from '@/types';
 import { getStoredInvoices } from '@/lib/storage';
+import { fetchInvoices, subscribeToInvoiceChanges } from '@/lib/supabaseStorage';
 import { BRAND } from '@/lib/constants';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'bio' | 'catalog' | 'create-invoice' | 'invoices' | 'cards'>('bio');
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [dbSource, setDbSource] = useState<'supabase' | 'local'>('local');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isSetupModalOpen, setIsSetupModalOpen] = useState(false);
   
   // Auth state (username: admin, pw: TovsFleur123)
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -34,9 +39,23 @@ export default function Home() {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
+  const loadInvoices = async () => {
+    setIsSyncing(true);
+    const res = await fetchInvoices();
+    setInvoices(res.data);
+    setDbSource(res.source);
+    setIsSyncing(false);
+  };
+
   // Initialize data and check auth
   useEffect(() => {
     setInvoices(getStoredInvoices());
+    loadInvoices();
+
+    // Realtime Supabase listener
+    const unsubscribe = subscribeToInvoiceChanges(() => {
+      loadInvoices();
+    });
 
     // Check existing auth in localStorage
     if (typeof window !== 'undefined') {
@@ -63,6 +82,7 @@ export default function Home() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      unsubscribe();
     };
   }, []);
 
@@ -76,11 +96,11 @@ export default function Home() {
   };
 
   const handleRefreshInvoices = () => {
-    setInvoices(getStoredInvoices());
+    loadInvoices();
   };
 
   const handleInvoiceCreated = (invoice: Invoice, openPrint: boolean = false) => {
-    setInvoices(getStoredInvoices());
+    loadInvoices();
     setEditingInvoice(null);
     if (openPrint) {
       setSelectedInvoiceForPrint(invoice);
@@ -165,6 +185,9 @@ export default function Home() {
               setEditingInvoice(null);
               setActiveTab('create-invoice');
             }}
+            dbSource={dbSource}
+            isSyncing={isSyncing}
+            onOpenSetupModal={() => setIsSetupModalOpen(true)}
           />
         )}
 
@@ -172,6 +195,14 @@ export default function Home() {
           <GreetingCardModal />
         )}
       </main>
+
+      {/* Supabase Database Setup & Sync Modal */}
+      <SupabaseSetupModal
+        isOpen={isSetupModalOpen}
+        onClose={() => setIsSetupModalOpen(false)}
+        onRefresh={handleRefreshInvoices}
+        isConnected={dbSource === 'supabase'}
+      />
 
       {/* Single Printable Invoice Modal */}
       <InvoicePrintModal

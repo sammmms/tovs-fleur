@@ -16,10 +16,14 @@ import {
   Sparkles,
   Layers,
   CheckSquare,
-  Square
+  Square,
+  Database,
+  Cloud,
+  HardDrive
 } from 'lucide-react';
 import { Invoice, PaymentStatus } from '@/types';
-import { formatRupiah, deleteInvoice, saveInvoice, resetToDefaultInvoices, generateInvoiceWhatsAppMessage } from '@/lib/storage';
+import { formatRupiah, resetToDefaultInvoices, generateInvoiceWhatsAppMessage } from '@/lib/storage';
+import { deleteInvoiceWithSync, saveInvoiceWithSync } from '@/lib/supabaseStorage';
 import { ConfirmModal } from './ConfirmModal';
 
 interface InvoiceListViewProps {
@@ -29,6 +33,9 @@ interface InvoiceListViewProps {
   onOpenBatchPrint: (invoices: Invoice[]) => void;
   onEditInvoice: (invoice: Invoice) => void;
   onGoToCreate: () => void;
+  dbSource?: 'supabase' | 'local';
+  isSyncing?: boolean;
+  onOpenSetupModal?: () => void;
 }
 
 export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
@@ -38,6 +45,9 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
   onOpenBatchPrint,
   onEditInvoice,
   onGoToCreate,
+  dbSource = 'local',
+  isSyncing = false,
+  onOpenSetupModal,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | PaymentStatus>('ALL');
@@ -90,9 +100,9 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
   };
 
   // Custom Delete Execution
-  const executeDelete = () => {
+  const executeDelete = async () => {
     if (deleteTarget) {
-      deleteInvoice(deleteTarget.id);
+      await deleteInvoiceWithSync(deleteTarget.id);
       setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
       setDeleteTarget(null);
       onRefreshInvoices();
@@ -100,7 +110,7 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
   };
 
   // Custom Duplicate Execution
-  const executeDuplicate = () => {
+  const executeDuplicate = async () => {
     if (duplicateTarget) {
       const copy: Invoice = {
         ...duplicateTarget,
@@ -108,7 +118,7 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
         invoiceNumber: `TF-${Date.now().toString().slice(-6)}`,
         createdAt: Date.now(),
       };
-      saveInvoice(copy);
+      await saveInvoiceWithSync(copy);
       setDuplicateTarget(null);
       onRefreshInvoices();
     }
@@ -136,9 +146,36 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
       {/* Header & Main Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#EADBCE]">
         <div>
-          <span className="text-xs uppercase font-bold tracking-widest text-[#A85842]">
-            Manajemen Invoice Florist
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase font-bold tracking-widest text-[#A85842]">
+              Manajemen Invoice Florist
+            </span>
+            {onOpenSetupModal && (
+              <button
+                type="button"
+                onClick={onOpenSetupModal}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-all cursor-pointer ${
+                  dbSource === 'supabase'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                    : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+                }`}
+                title="Status database Supabase (Klik untuk konfigurasi)"
+              >
+                {dbSource === 'supabase' ? (
+                  <>
+                    <Cloud className="w-3 h-3 text-emerald-600" />
+                    <span>Cloud Supabase Aktif</span>
+                  </>
+                ) : (
+                  <>
+                    <HardDrive className="w-3 h-3 text-amber-600" />
+                    <span>Mode Lokal • Hubungkan Cloud</span>
+                  </>
+                )}
+                {isSyncing && <span className="animate-pulse">⏳</span>}
+              </button>
+            )}
+          </div>
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2C1F17] mt-0.5">
             Daftar Faktur & Pesanan
           </h2>
@@ -148,6 +185,17 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-center">
+          {onOpenSetupModal && (
+            <button
+              onClick={onOpenSetupModal}
+              className="px-3 py-2 rounded-xl bg-white hover:bg-[#FAF6F0] text-[#7A5239] border border-[#D8C3B1] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Konfigurasi Database Cloud Supabase"
+            >
+              <Database className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="hidden sm:inline">Database Cloud</span>
+            </button>
+          )}
+
           <button
             onClick={() => setResetModalOpen(true)}
             className="px-3 py-2 rounded-xl bg-white hover:bg-[#FAF6F0] text-[#7A5239] border border-[#D8C3B1] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"

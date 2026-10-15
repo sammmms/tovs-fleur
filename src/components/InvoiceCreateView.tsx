@@ -36,6 +36,7 @@ import {
   formatRupiah,
   generateInvoiceWhatsAppMessage 
 } from '@/lib/storage';
+import { saveInvoiceWithSync } from '@/lib/supabaseStorage';
 import { CustomDatePicker } from './CustomDatePicker';
 import { CustomSelect } from './CustomSelect';
 
@@ -189,14 +190,14 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
     setItems(defaultItems.map((it, idx) => ({ id: `${idx + 1}`, name: it.name, price: it.price })));
   };
 
-  const handleSave = (openPrint: boolean = false, sendWa: boolean = false) => {
+  const handleSave = async (openPrint: boolean = false, sendWa: boolean = false) => {
     if (!customerName.trim()) {
       alert('Mohon isi Nama Pemesan!');
       return;
     }
 
     const invoiceData: Invoice = {
-      id: editingInvoice ? editingInvoice.id : invoiceNumber,
+      id: editingInvoice ? editingInvoice.id : (invoiceNumber || `TF-${Date.now().toString().slice(-6)}`),
       invoiceNumber: invoiceNumber.trim() || generateInvoiceNumber(orderDate),
       orderDate: orderDate.trim() || getTodayFormattedIndonesian(),
       paymentDate: paymentDate.trim() || getTodayFormattedIndonesian(),
@@ -218,7 +219,7 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
       createdAt: editingInvoice ? editingInvoice.createdAt : Date.now(),
     };
 
-    saveInvoice(invoiceData);
+    await saveInvoiceWithSync(invoiceData);
 
     try {
       confetti({

@@ -65,12 +65,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           </p>
         </div>
 
-        {/* Demo Hint Box */}
-        <div className="mb-4 p-2.5 rounded-xl bg-[#FAF6F0] border border-[#EADBCE] text-[11px] text-[#7A5239] flex items-center justify-between">
-          <span>Kredensial Login:</span>
-          <span className="font-mono font-bold text-[#A85842]">admin / TovsFleur123</span>
-        </div>
-
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {error && (
@@ -92,7 +86,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#A85842]"
-                placeholder="admin"
+                placeholder="Masukkan username"
               />
             </div>
           </div>
@@ -109,7 +103,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#A85842]"
-                placeholder="TovsFleur123"
+                placeholder="••••••••"
               />
             </div>
           </div>
