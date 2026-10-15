@@ -8,8 +8,11 @@ import { CatalogView } from '@/components/CatalogView';
 import { InvoiceCreateView } from '@/components/InvoiceCreateView';
 import { InvoiceListView } from '@/components/InvoiceListView';
 import { InvoicePrintModal } from '@/components/InvoicePrintModal';
+import { BatchInvoicePrintModal } from '@/components/BatchInvoicePrintModal';
 import { GreetingCardModal } from '@/components/GreetingCardModal';
 import { OrderBuilderModal } from '@/components/OrderBuilderModal';
+import { LoginModal } from '@/components/LoginModal';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { Invoice, CatalogItem } from '@/types';
 import { getStoredInvoices } from '@/lib/storage';
 import { BRAND } from '@/lib/constants';
@@ -17,16 +20,33 @@ import { BRAND } from '@/lib/constants';
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'bio' | 'catalog' | 'create-invoice' | 'invoices' | 'cards'>('bio');
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  
+  // Auth state (username: admin, pw: TovsFleur123)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  // Print modals
   const [selectedInvoiceForPrint, setSelectedInvoiceForPrint] = useState<Invoice | null>(null);
+  const [selectedBatchInvoices, setSelectedBatchInvoices] = useState<Invoice[]>([]);
+
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
-  // Initialize data and register service worker for PWA
+  // Initialize data and check auth
   useEffect(() => {
     setInvoices(getStoredInvoices());
 
-    // Service Worker
+    // Check existing auth in localStorage
+    if (typeof window !== 'undefined') {
+      const auth = localStorage.getItem('tovs_florist_auth');
+      if (auth === 'true') {
+        setIsAuthenticated(true);
+      }
+    }
+
+    // Service Worker for PWA
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
@@ -74,6 +94,13 @@ export default function Home() {
     setActiveTab('create-invoice');
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('tovs_florist_auth');
+    setIsAuthenticated(false);
+    setIsLogoutModalOpen(false);
+    setActiveTab('bio');
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF6F0] selection:bg-[#EADBCE]">
       {/* Top Navbar */}
@@ -86,14 +113,23 @@ export default function Home() {
         onOpenOrderModal={() => setIsOrderModalOpen(true)}
         deferredPrompt={deferredPrompt}
         onInstallPwa={handleInstallPwa}
+        isAuthenticated={isAuthenticated}
+        onOpenLogin={() => setIsLoginModalOpen(true)}
+        onRequestLogout={() => setIsLogoutModalOpen(true)}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 pb-16">
+      <main className="flex-1 w-full pb-16">
         {activeTab === 'bio' && (
           <BioCardView
             onGoToCatalog={() => setActiveTab('catalog')}
-            onGoToInvoice={() => setActiveTab('create-invoice')}
+            onGoToInvoice={() => {
+              if (isAuthenticated) {
+                setActiveTab('create-invoice');
+              } else {
+                setIsLoginModalOpen(true);
+              }
+            }}
             onOpenOrderModal={() => setIsOrderModalOpen(true)}
           />
         )}
@@ -123,6 +159,7 @@ export default function Home() {
             invoices={invoices}
             onRefreshInvoices={handleRefreshInvoices}
             onOpenPrint={(inv) => setSelectedInvoiceForPrint(inv)}
+            onOpenBatchPrint={(batch) => setSelectedBatchInvoices(batch)}
             onEditInvoice={handleEditInvoice}
             onGoToCreate={() => {
               setEditingInvoice(null);
@@ -136,16 +173,46 @@ export default function Home() {
         )}
       </main>
 
-      {/* Printable Invoice Modal */}
+      {/* Single Printable Invoice Modal */}
       <InvoicePrintModal
         invoice={selectedInvoiceForPrint}
         onClose={() => setSelectedInvoiceForPrint(null)}
+      />
+
+      {/* Batch Multi-Invoice Print Modal (Print beberapa invoice jadi 1 file PDF) */}
+      <BatchInvoicePrintModal
+        invoices={selectedBatchInvoices}
+        onClose={() => setSelectedBatchInvoices([])}
       />
 
       {/* Customer Order Builder Modal */}
       <OrderBuilderModal
         isOpen={isOrderModalOpen}
         onClose={() => setIsOrderModalOpen(false)}
+      />
+
+      {/* Login Florist Modal */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={() => {
+          setIsAuthenticated(true);
+          // If user was trying to go to an admin tab, stay there or open invoices
+          if (activeTab === 'bio' || activeTab === 'catalog') {
+            setActiveTab('invoices');
+          }
+        }}
+      />
+
+      {/* Logout Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isLogoutModalOpen}
+        type="logout"
+        title="Keluar dari Akun Florist?"
+        message="Akses halaman faktur dan cetak kartu akan dikunci sampai Anda login kembali."
+        confirmText="Ya, Keluar"
+        onConfirm={handleLogout}
+        onCancel={() => setIsLogoutModalOpen(false)}
       />
 
       {/* Bottom Footer (Hidden when printing) */}

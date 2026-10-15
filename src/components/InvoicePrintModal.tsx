@@ -12,7 +12,8 @@ import {
   Calendar, 
   User, 
   Heart,
-  Flower2
+  Flower2,
+  ArrowLeft
 } from 'lucide-react';
 import { Invoice } from '@/types';
 import { formatRupiah, generateInvoiceWhatsAppMessage } from '@/lib/storage';
@@ -27,6 +28,15 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
   invoice,
   onClose,
 }) => {
+  // Listen for Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   if (!invoice) return null;
 
   const handlePrint = () => {
@@ -43,16 +53,31 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start justify-center p-2 sm:p-6 overflow-y-auto">
+    <div 
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start justify-center p-2 sm:p-6 overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       {/* Modal Container */}
       <div className="bg-white rounded-3xl w-full max-w-3xl my-4 sm:my-8 flex flex-col shadow-2xl border border-[#D8C3B1] overflow-hidden relative">
         {/* Top Control Bar (Sticky & Hidden when printing) */}
-        <div className="sticky top-0 z-20 no-print px-5 py-3.5 bg-[#FAF6F0] border-b border-[#EADBCE] flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-            <h3 className="font-serif font-bold text-sm sm:text-base text-[#2C1F17]">
-              Faktur Resmi #{invoice.invoiceNumber}
-            </h3>
+        <div className="sticky top-0 z-20 no-print px-4 sm:px-6 py-3.5 bg-[#FAF6F0] border-b border-[#EADBCE] flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3 py-1.5 rounded-xl border border-[#D8C3B1] bg-white hover:bg-[#FAF6F0] text-xs font-bold text-[#7A5239] flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Kembali</span>
+            </button>
+            <div className="hidden xs:flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <h3 className="font-serif font-bold text-xs sm:text-sm text-[#2C1F17]">
+                Faktur #{invoice.invoiceNumber}
+              </h3>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -278,6 +303,35 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
                 Medan & Lubuk Pakam, Sumatera Utara
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Bottom Control Bar (Hidden when printing) */}
+        <div className="no-print px-6 py-3.5 bg-[#FAF6F0] border-t border-[#EADBCE] flex items-center justify-between">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-[#D8C3B1] bg-white hover:bg-[#FAF6F0] text-xs font-bold text-[#7A5239] flex items-center gap-1.5 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Kembali ke Daftar Invoice</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSendWhatsApp}
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>Kirim WA</span>
+            </button>
+            <button
+              onClick={handlePrint}
+              className="px-4 py-2 rounded-xl bg-[#7A5239] hover:bg-[#5C3D2E] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Cetak / PDF</span>
+            </button>
           </div>
         </div>
       </div>

@@ -13,7 +13,12 @@ import {
   CheckCircle2, 
   RotateCcw,
   Tag,
-  Palette
+  Palette,
+  CreditCard,
+  Banknote,
+  QrCode,
+  User,
+  Heart
 } from 'lucide-react';
 import { 
   Invoice, 
@@ -31,6 +36,28 @@ import {
   formatRupiah,
   generateInvoiceWhatsAppMessage 
 } from '@/lib/storage';
+import { CustomDatePicker } from './CustomDatePicker';
+import { CustomSelect } from './CustomSelect';
+
+const BANK_OPTIONS = [
+  { value: 'BCA', label: 'BCA (Bank Central Asia)' },
+  { value: 'CIMB Niaga', label: 'CIMB Niaga' },
+  { value: 'Mandiri', label: 'Bank Mandiri' },
+  { value: 'BRI', label: 'BRI (Bank Rakyat Indonesia)' },
+  { value: 'BNI', label: 'BNI (Bank Negara Indonesia)' },
+  { value: 'Bank Sumut', label: 'Bank Sumut (Medan & Sumut)' },
+  { value: 'BSI', label: 'BSI (Bank Syariah Indonesia)' },
+  { value: 'Permata', label: 'Bank Permata' },
+  { value: 'Bank Lainnya', label: 'Bank Lainnya / Antar Bank' },
+];
+
+const EWALLET_OPTIONS = [
+  { value: 'QRIS Tov’s Fleur', label: 'QRIS Resmi Tov’s Fleur' },
+  { value: 'GoPay', label: 'GoPay' },
+  { value: 'OVO', label: 'OVO' },
+  { value: 'ShopeePay', label: 'ShopeePay' },
+  { value: 'DANA', label: 'DANA' },
+];
 
 interface InvoiceCreateViewProps {
   onInvoiceCreated: (invoice: Invoice, openPrint?: boolean) => void;
@@ -48,7 +75,11 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
   const [orderDate, setOrderDate] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('LUNAS');
-  const [paymentMethod, setPaymentMethod] = useState('Transfer Bank');
+  
+  // 2-Level Payment Method State
+  const [paymentType, setPaymentType] = useState<'Transfer Bank' | 'Tunai / Cash' | 'QRIS / E-Wallet'>('Transfer Bank');
+  const [selectedBank, setSelectedBank] = useState('BCA');
+  const [selectedEwallet, setSelectedEwallet] = useState('QRIS Tov’s Fleur');
 
   const [customerName, setCustomerName] = useState('');
   const [customerGender, setCustomerGender] = useState<Gender>('Laki-Laki');
@@ -77,7 +108,19 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
       setOrderDate(editingInvoice.orderDate);
       setPaymentDate(editingInvoice.paymentDate);
       setPaymentStatus(editingInvoice.paymentStatus);
-      setPaymentMethod(editingInvoice.paymentMethod || 'Transfer Bank');
+
+      // Parse payment method
+      const method = editingInvoice.paymentMethod || 'Transfer Bank (BCA)';
+      if (method.includes('Tunai') || method.includes('Cash')) {
+        setPaymentType('Tunai / Cash');
+      } else if (method.includes('QRIS') || method.includes('GoPay') || method.includes('OVO')) {
+        setPaymentType('QRIS / E-Wallet');
+        setSelectedEwallet(method.replace('QRIS / E-Wallet - ', ''));
+      } else {
+        setPaymentType('Transfer Bank');
+        setSelectedBank(method.replace('Transfer Bank - ', '').replace('Transfer Bank (', '').replace(')', ''));
+      }
+
       setCustomerName(editingInvoice.customerName);
       setCustomerGender(editingInvoice.customerGender);
       setCustomerPhone(editingInvoice.customerPhone || '');
@@ -93,11 +136,28 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
     } else {
       const today = getTodayFormattedIndonesian();
       const existing = getStoredInvoices();
-      setInvoiceNumber(generateInvoiceNumber(existing.length));
       setOrderDate(today);
       setPaymentDate(today);
+      setInvoiceNumber(generateInvoiceNumber(today, existing));
     }
   }, [editingInvoice]);
+
+  // Re-calculate data-driven invoice number when orderDate changes
+  const handleOrderDateChange = (newDate: string) => {
+    setOrderDate(newDate);
+    if (!editingInvoice) {
+      const existing = getStoredInvoices();
+      const autoNum = generateInvoiceNumber(newDate, existing);
+      setInvoiceNumber(autoNum);
+    }
+  };
+
+  // Compile full payment method string
+  const getFullPaymentMethod = () => {
+    if (paymentType === 'Tunai / Cash') return 'Tunai / Cash';
+    if (paymentType === 'QRIS / E-Wallet') return `QRIS / E-Wallet - ${selectedEwallet}`;
+    return `Transfer Bank - ${selectedBank}`;
+  };
 
   // Calculate total
   const totalAmount = items.reduce((acc, curr) => acc + (Number(curr.price) || 0), 0);
@@ -137,11 +197,11 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
 
     const invoiceData: Invoice = {
       id: editingInvoice ? editingInvoice.id : invoiceNumber,
-      invoiceNumber: invoiceNumber.trim() || `TF-${Date.now().toString().slice(-6)}`,
+      invoiceNumber: invoiceNumber.trim() || generateInvoiceNumber(orderDate),
       orderDate: orderDate.trim() || getTodayFormattedIndonesian(),
       paymentDate: paymentDate.trim() || getTodayFormattedIndonesian(),
       paymentStatus,
-      paymentMethod,
+      paymentMethod: getFullPaymentMethod(),
       customerName: customerName.trim(),
       customerGender,
       customerPhone: customerPhone.trim(),
@@ -207,9 +267,9 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Main Form (8 Cols) */}
-        <div className="lg:col-span-8 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+        {/* Main Form (8 Cols on desktop, 7 on tablet/medium) */}
+        <div className="md:col-span-7 lg:col-span-8 space-y-6">
           {/* Card 1: Data Invoice & Transaksi */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#EADBCE] shadow-xs space-y-4">
             <h3 className="font-serif font-bold text-base text-[#2C1F17] flex items-center gap-2 border-b border-[#F5ECE1] pb-2">
@@ -220,45 +280,35 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
-                  Nomor Invoice
+                  Nomor Invoice (Auto-Data)
                 </label>
                 <input
                   type="text"
                   value={invoiceNumber}
                   onChange={(e) => setInvoiceNumber(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#A85842]"
+                  className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm font-mono font-bold text-[#7A5239] bg-[#FAF6F0] focus:outline-none focus:ring-2 focus:ring-[#A85842]"
                   placeholder="TF-20261015-01"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
-                  Tanggal Pesan
-                </label>
-                <input
-                  type="text"
+                <CustomDatePicker
+                  label="Tanggal Pesan *"
                   value={orderDate}
-                  onChange={(e) => setOrderDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#A85842]"
-                  placeholder="15 Oktober 2026"
+                  onChange={handleOrderDateChange}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
-                  Tanggal Bayar
-                </label>
-                <input
-                  type="text"
+                <CustomDatePicker
+                  label="Tanggal Bayar"
                   value={paymentDate}
-                  onChange={(e) => setPaymentDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#A85842]"
-                  placeholder="15 Oktober 2026"
+                  onChange={(d) => setPaymentDate(d)}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div className="space-y-3 pt-1">
               <div>
                 <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
                   Status Pembayaran
@@ -269,13 +319,13 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                       key={st}
                       type="button"
                       onClick={() => setPaymentStatus(st)}
-                      className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                         paymentStatus === st
                           ? st === 'LUNAS'
-                            ? 'bg-emerald-600 border-emerald-600 text-white'
+                            ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
                             : st === 'DP'
-                            ? 'bg-amber-600 border-amber-600 text-white'
-                            : 'bg-rose-600 border-rose-600 text-white'
+                            ? 'bg-amber-600 border-amber-600 text-white shadow-xs'
+                            : 'bg-rose-600 border-rose-600 text-white shadow-xs'
                           : 'bg-[#FAF6F0] border-[#D8C3B1] text-[#7A5239] hover:bg-[#EADBCE]'
                       }`}
                     >
@@ -285,25 +335,85 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
-                  Metode Pembayaran
+              {/* 2-Level Payment Method */}
+              <div className="p-3.5 rounded-2xl bg-[#FAF6F0]/80 border border-[#EADBCE] space-y-3">
+                <label className="block text-xs font-semibold text-[#6B4E3D]">
+                  Metode Pembayaran (Level 1: Kategori ➔ Level 2: Bank / Channel)
                 </label>
-                <select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#A85842]"
-                >
-                  <option value="Transfer Bank BCA">Transfer Bank BCA</option>
-                  <option value="Transfer Bank Mandiri">Transfer Bank Mandiri</option>
-                  <option value="QRIS">QRIS Tov’s Fleur</option>
-                  <option value="Tunai / Cash">Tunai / Cash</option>
-                </select>
+                
+                {/* Level 1 Selectable Cards */}
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentType('Transfer Bank')}
+                    className={`p-2.5 rounded-xl border flex flex-col items-center gap-1 text-xs font-bold transition-all cursor-pointer ${
+                      paymentType === 'Transfer Bank'
+                        ? 'border-[#7A5239] bg-white text-[#7A5239] shadow-xs ring-2 ring-[#7A5239]/20'
+                        : 'border-[#D8C3B1] bg-white/50 text-zinc-500 hover:bg-white'
+                    }`}
+                  >
+                    <CreditCard className="w-4 h-4 text-[#A85842]" />
+                    <span>Transfer Bank</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentType('QRIS / E-Wallet')}
+                    className={`p-2.5 rounded-xl border flex flex-col items-center gap-1 text-xs font-bold transition-all cursor-pointer ${
+                      paymentType === 'QRIS / E-Wallet'
+                        ? 'border-[#7A5239] bg-white text-[#7A5239] shadow-xs ring-2 ring-[#7A5239]/20'
+                        : 'border-[#D8C3B1] bg-white/50 text-zinc-500 hover:bg-white'
+                    }`}
+                  >
+                    <QrCode className="w-4 h-4 text-emerald-600" />
+                    <span>QRIS / E-Wallet</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentType('Tunai / Cash')}
+                    className={`p-2.5 rounded-xl border flex flex-col items-center gap-1 text-xs font-bold transition-all cursor-pointer ${
+                      paymentType === 'Tunai / Cash'
+                        ? 'border-[#7A5239] bg-white text-[#7A5239] shadow-xs ring-2 ring-[#7A5239]/20'
+                        : 'border-[#D8C3B1] bg-white/50 text-zinc-500 hover:bg-white'
+                    }`}
+                  >
+                    <Banknote className="w-4 h-4 text-amber-600" />
+                    <span>Tunai / Cash</span>
+                  </button>
+                </div>
+
+                {/* Level 2 Sub-Selection */}
+                {paymentType === 'Transfer Bank' && (
+                  <div className="pt-1">
+                    <label className="block text-[11px] font-semibold text-[#7A5239] mb-1">
+                      Pilih Bank Tujuan:
+                    </label>
+                    <CustomSelect
+                      value={selectedBank}
+                      onChange={(val) => setSelectedBank(val)}
+                      options={BANK_OPTIONS}
+                    />
+                  </div>
+                )}
+
+                {paymentType === 'QRIS / E-Wallet' && (
+                  <div className="pt-1">
+                    <label className="block text-[11px] font-semibold text-[#7A5239] mb-1">
+                      Pilih Channel E-Wallet:
+                    </label>
+                    <CustomSelect
+                      value={selectedEwallet}
+                      onChange={(val) => setSelectedEwallet(val)}
+                      options={EWALLET_OPTIONS}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Card 2: Pemesan & Penerima */}
+          {/* Card 2: Pemesan & Penerima (Card Gender Selectors) */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#EADBCE] shadow-xs space-y-4">
             <h3 className="font-serif font-bold text-base text-[#2C1F17] flex items-center gap-2 border-b border-[#F5ECE1] pb-2">
               <Sparkles className="w-4 h-4 text-[#A85842]" />
@@ -326,37 +436,54 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                 />
               </div>
 
-              <div className="sm:col-span-3">
+              <div className="sm:col-span-6">
                 <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
                   Gender Pemesan
                 </label>
-                <select
-                  value={customerGender}
-                  onChange={(e) => setCustomerGender(e.target.value as Gender)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm bg-white focus:outline-none"
-                >
-                  <option value="Laki-Laki">Laki-Laki</option>
-                  <option value="Perempuan">Perempuan</option>
-                </select>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCustomerGender('Laki-Laki')}
+                    className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold transition-all cursor-pointer ${
+                      customerGender === 'Laki-Laki'
+                        ? 'border-[#7A5239] bg-[#FAF6F0] text-[#7A5239] ring-2 ring-[#7A5239]/20'
+                        : 'border-[#EADBCE] bg-white text-zinc-500 hover:bg-[#FAF6F0]'
+                    }`}
+                  >
+                    <span>👨 Laki-Laki</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCustomerGender('Perempuan')}
+                    className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold transition-all cursor-pointer ${
+                      customerGender === 'Perempuan'
+                        ? 'border-[#A85842] bg-[#FAF6F0] text-[#A85842] ring-2 ring-[#A85842]/20'
+                        : 'border-[#EADBCE] bg-white text-zinc-500 hover:bg-[#FAF6F0]'
+                    }`}
+                  >
+                    <span>👩 Perempuan</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="sm:col-span-3">
+              <div className="sm:col-span-12">
                 <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
-                  No. WhatsApp Pemesan
+                  No. WhatsApp Pemesan (Untuk Kirim Invoice)
                 </label>
                 <input
                   type="text"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none"
-                  placeholder="0812..."
+                  placeholder="0812... (opsional)"
                 />
               </div>
             </div>
 
             {/* Penerima */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2">
-              <div className="sm:col-span-8">
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2 border-t border-[#F5ECE1]">
+              <div className="sm:col-span-6">
                 <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
                   Nama Penerima
                 </label>
@@ -369,30 +496,45 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                 />
               </div>
 
-              <div className="sm:col-span-4">
+              <div className="sm:col-span-6">
                 <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
                   Gender Penerima
                 </label>
-                <select
-                  value={recipientGender}
-                  onChange={(e) => setRecipientGender(e.target.value as Gender)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm bg-white focus:outline-none"
-                >
-                  <option value="Perempuan">Perempuan</option>
-                  <option value="Laki-Laki">Laki-Laki</option>
-                </select>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setRecipientGender('Perempuan')}
+                    className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold transition-all cursor-pointer ${
+                      recipientGender === 'Perempuan'
+                        ? 'border-[#A85842] bg-[#FAF6F0] text-[#A85842] ring-2 ring-[#A85842]/20'
+                        : 'border-[#EADBCE] bg-white text-zinc-500 hover:bg-[#FAF6F0]'
+                    }`}
+                  >
+                    <span>👩 Perempuan</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setRecipientGender('Laki-Laki')}
+                    className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-2 text-xs font-bold transition-all cursor-pointer ${
+                      recipientGender === 'Laki-Laki'
+                        ? 'border-[#7A5239] bg-[#FAF6F0] text-[#7A5239] ring-2 ring-[#7A5239]/20'
+                        : 'border-[#EADBCE] bg-white text-zinc-500 hover:bg-[#FAF6F0]'
+                    }`}
+                  >
+                    <span>👨 Laki-Laki</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Card 3: Spesifikasi Produk & Bunga */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#EADBCE] shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-[#F5ECE1] pb-2">
-              <h3 className="font-serif font-bold text-base text-[#2C1F17] flex items-center gap-2">
-                <Palette className="w-4 h-4 text-[#A85842]" />
-                <span>3. Spesifikasi Bunga & Request Khusus</span>
-              </h3>
-            </div>
+            <h3 className="font-serif font-bold text-base text-[#2C1F17] flex items-center gap-2 border-b border-[#F5ECE1] pb-2">
+              <Palette className="w-4 h-4 text-[#A85842]" />
+              <span>3. Spesifikasi Bunga & Request Khusus</span>
+            </h3>
 
             {/* Quick Presets */}
             <div className="flex flex-wrap gap-1.5 pb-2">
@@ -452,39 +594,35 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
               </div>
 
               <div className="sm:col-span-3">
-                <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
-                  Jenis Bunga
-                </label>
-                <select
+                <CustomSelect
+                  label="Jenis Bunga"
                   value={flowerType}
-                  onChange={(e) => setFlowerType(e.target.value as FlowerType)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm bg-white focus:outline-none"
-                >
-                  <option value="Artificial">Artificial</option>
-                  <option value="Fresh Flowers">Fresh Flowers</option>
-                  <option value="Preserved">Preserved Flowers</option>
-                  <option value="Glass Dome">Glass Dome</option>
-                  <option value="Bloom Box">Bloom Box</option>
-                  <option value="Modifikasi Uang">Modifikasi Uang</option>
-                  <option value="Lainnya">Lainnya</option>
-                </select>
+                  onChange={(val) => setFlowerType(val as FlowerType)}
+                  options={[
+                    { value: 'Artificial', label: 'Artificial Flowers' },
+                    { value: 'Fresh Flowers', label: 'Fresh Flowers' },
+                    { value: 'Preserved', label: 'Preserved Flowers' },
+                    { value: 'Glass Dome', label: 'Glass Dome' },
+                    { value: 'Bloom Box', label: 'Bloom Box' },
+                    { value: 'Modifikasi Uang', label: 'Modifikasi Buket Uang' },
+                    { value: 'Lainnya', label: 'Lainnya' },
+                  ]}
+                />
               </div>
 
               <div className="sm:col-span-3">
-                <label className="block text-xs font-semibold text-[#6B4E3D] mb-1">
-                  Ukuran Buket
-                </label>
-                <select
+                <CustomSelect
+                  label="Ukuran Buket"
                   value={size}
-                  onChange={(e) => setSize(e.target.value as BouquetSize)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm bg-white focus:outline-none"
-                >
-                  <option value="S">Small (S)</option>
-                  <option value="M">Medium (M)</option>
-                  <option value="L">Large (L)</option>
-                  <option value="XL">Extra Large (XL)</option>
-                  <option value="Custom">Custom Size</option>
-                </select>
+                  onChange={(val) => setSize(val as BouquetSize)}
+                  options={[
+                    { value: 'S', label: 'Small (S)' },
+                    { value: 'M', label: 'Medium (M)' },
+                    { value: 'L', label: 'Large (L)' },
+                    { value: 'XL', label: 'Extra Large (XL)' },
+                    { value: 'Custom', label: 'Custom Request' },
+                  ]}
+                />
               </div>
             </div>
 
@@ -524,7 +662,7 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                 <div className="flex gap-1">
                   <button
                     type="button"
-                    onClick={() => setGreetingCard(`Wisudatulation\n${recipientName || 'Nama Penerima, S. Kom.'}`)}
+                    onClick={() => setGreetingCard(`Wisudatulation\n${recipientName || 'Naomi Prisella, S. Kom.'}`)}
                     className="text-[10px] text-[#A85842] hover:underline"
                   >
                     Template Wisuda
@@ -549,7 +687,7 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
             </div>
           </div>
 
-          {/* Card 4: Perincian Harga (Itemized Line Items) */}
+          {/* Card 4: Perincian Harga */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#EADBCE] shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-[#F5ECE1] pb-2">
               <div>
@@ -557,7 +695,7 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                   4. Perincian Harga (Rp)
                 </h3>
                 <p className="text-xs text-[#7A5239]">
-                  Ketik nama barang dan nominal harga. Nilai negatif akan otomatis dihitung sebagai diskon.
+                  Ketik nama barang dan nominal harga. Nilai negatif otomatis sebagai diskon.
                 </p>
               </div>
 
@@ -610,7 +748,7 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
               </button>
             </div>
 
-            {/* Table */}
+            {/* Items Table */}
             <div className="space-y-2 mt-3">
               {items.map((item, idx) => (
                 <div
@@ -659,34 +797,34 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
           </div>
         </div>
 
-        {/* Live Preview & Actions Sidebar (4 Cols) */}
-        <div className="lg:col-span-4 space-y-4">
+        {/* Live Preview Sidebar (4 Cols on desktop, 5 on tablet/medium) */}
+        <div className="md:col-span-5 lg:col-span-4 space-y-4">
           <div className="bg-[#FAF6F0] rounded-2xl p-5 border-2 border-[#D8C3B1] shadow-md sticky top-24 space-y-4">
             <div className="flex items-center justify-between border-b border-[#EADBCE] pb-2">
               <span className="text-xs uppercase font-bold text-[#7A5239] tracking-wider">
                 Pratinjau Ringkasan
               </span>
-              <span className="text-[10px] bg-[#EADBCE] text-[#4A3528] px-2 py-0.5 rounded-full font-semibold">
+              <span className="text-[10px] bg-[#EADBCE] text-[#4A3528] px-2 py-0.5 rounded-full font-mono font-bold">
                 {invoiceNumber || 'DRAFT'}
               </span>
             </div>
 
             <div className="space-y-2 text-xs text-[#4A3528]">
               <div className="flex justify-between">
+                <span className="text-[#7A5239]">Tanggal:</span>
+                <span className="font-semibold text-right">{orderDate}</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-[#7A5239]">Pemesan:</span>
-                <span className="font-semibold text-right">{customerName || '-'}</span>
+                <span className="font-semibold text-right">{customerName || '-'} ({customerGender})</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#7A5239]">Penerima:</span>
-                <span className="font-semibold text-right">{recipientName || '-'}</span>
+                <span className="font-semibold text-right">{recipientName || '-'} ({recipientGender})</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#7A5239]">Produk:</span>
-                <span className="font-semibold text-right max-w-[180px] truncate">{productName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[#7A5239]">Ukuran / Bunga:</span>
-                <span className="font-semibold text-right">{size} / {flowerType}</span>
+                <span className="text-[#7A5239]">Metode Bayar:</span>
+                <span className="font-semibold text-right text-xs truncate max-w-[160px]">{getFullPaymentMethod()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#7A5239]">Status:</span>
@@ -720,9 +858,8 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Actions */}
             <div className="space-y-2 pt-2">
-              {/* Save & Print PDF */}
               <button
                 type="button"
                 onClick={() => handleSave(true, false)}
@@ -732,7 +869,6 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                 <span>Simpan & Cetak PDF (A4)</span>
               </button>
 
-              {/* Save & Send WA */}
               <button
                 type="button"
                 onClick={() => handleSave(false, true)}
@@ -742,7 +878,6 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                 <span>Simpan & Kirim ke WhatsApp</span>
               </button>
 
-              {/* Only Save */}
               <button
                 type="button"
                 onClick={() => handleSave(false, false)}

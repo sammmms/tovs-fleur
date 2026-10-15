@@ -70,13 +70,48 @@ export function getTodayFormattedIndonesian(): string {
   return `${day} ${month} ${year}`;
 }
 
-export function generateInvoiceNumber(existingCount: number = 0): string {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  const seq = String(existingCount + 1).padStart(2, '0');
-  return `TF-${yyyy}${mm}${dd}-${seq}`;
+export function generateInvoiceNumber(orderDateStr?: string, existingInvoices?: Invoice[]): string {
+  const months = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  let yyyy = new Date().getFullYear();
+  let mm = String(new Date().getMonth() + 1).padStart(2, '0');
+  let dd = String(new Date().getDate()).padStart(2, '0');
+
+  if (orderDateStr) {
+    const parts = orderDateStr.trim().split(' ');
+    if (parts.length >= 3) {
+      const d = parseInt(parts[0], 10);
+      const mIdx = months.indexOf(parts[1]);
+      const y = parseInt(parts[2], 10);
+      if (!isNaN(d) && mIdx >= 0 && !isNaN(y)) {
+        yyyy = y;
+        mm = String(mIdx + 1).padStart(2, '0');
+        dd = String(d).padStart(2, '0');
+      }
+    }
+  }
+
+  const datePrefix = `TF-${yyyy}${mm}${dd}`;
+  const list = existingInvoices || (typeof window !== 'undefined' ? getStoredInvoices() : []);
+  
+  // Find all invoices starting with datePrefix and get highest sequence
+  let maxSeq = 0;
+  list.forEach((inv) => {
+    if (inv.invoiceNumber && inv.invoiceNumber.startsWith(datePrefix)) {
+      const parts = inv.invoiceNumber.split('-');
+      if (parts.length >= 3) {
+        const num = parseInt(parts[parts.length - 1], 10);
+        if (!isNaN(num) && num > maxSeq) {
+          maxSeq = num;
+        }
+      }
+    }
+  });
+
+  const nextSeq = String(maxSeq + 1).padStart(2, '0');
+  return `${datePrefix}-${nextSeq}`;
 }
 
 export function generateInvoiceWhatsAppMessage(invoice: Invoice): string {
