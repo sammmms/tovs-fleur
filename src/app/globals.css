@@ -56,7 +56,7 @@ body {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm 12mm 10mm 12mm;
+    margin: 8mm 8mm 8mm 8mm;
   }
 
   * {
@@ -65,8 +65,31 @@ body {
     box-sizing: border-box !important;
   }
 
+  /* Universal reset: Force ALL layout wrappers, divs, and backgrounds to transparent/white
+     so printer ink is 100% protected and NEVER sprays beige/cream or theme background fills */
+  html,
+  body,
+  #__next,
+  .min-h-screen,
+  main,
+  section,
+  article,
+  .greeting-card-modal-root,
+  .greeting-card-modal-grid,
+  .greeting-card-print-area,
+  .print-card-wrapper,
+  .print-modal-wrapper {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    border-color: transparent !important;
+  }
+
   html, body {
     background: #ffffff !important;
+    background-color: #ffffff !important;
     color: #2C1F17 !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -75,6 +98,13 @@ body {
     height: auto !important;
     overflow: visible !important;
     font-size: 12px;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
   }
 
   /* Universal print hide */
@@ -160,7 +190,9 @@ body {
     display: block !important;
   }
 
-  /* Greeting Card Printing (Exact 10cm x 7cm card, Zero Ink Waste white background) */
+  /* ==========================================================================
+     FLORIST GREETING CARD PRINTING (ZERO INK WASTE & EFFICIENT A4 LAYOUTS)
+     ========================================================================== */
   .greeting-card-modal-root {
     padding: 0 !important;
     margin: 0 !important;
@@ -182,102 +214,165 @@ body {
   }
 
   .print-card-wrapper {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
+    display: block !important;
     width: 100% !important;
-    margin: 15mm auto 0 auto !important;
+    margin: 0 !important;
     padding: 0 !important;
   }
 
-  .print-cutting-guide {
-    display: block !important;
-    width: 100mm !important;
-    text-align: center !important;
-    margin-bottom: 3mm !important;
-    font-size: 8pt !important;
-    color: #7A5239 !important;
-    font-family: monospace !important;
-    letter-spacing: 0.5px !important;
+  /* Layout 1: 4 Cards per A4 Page (2x2 Grid) */
+  .print-layout-grid4 {
+    display: grid !important;
+    grid-template-columns: repeat(2, 95mm) !important;
+    column-gap: 4mm !important;
+    row-gap: 4mm !important;
+    justify-content: start !important;
+    align-content: start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
-  /* Standard Florist Bouquet Card: 100mm x 70mm, Pure White (Zero Ink Waste), Crisp Double Florist Border */
+  /* Layout 2: 1 Card Corner (Top-Left) - leaves 80% of A4 cardstock paper completely reusable */
+  .print-layout-corner {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Layout 3: 1 Card Center */
+  .print-layout-center {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 15mm auto 0 auto !important;
+    padding: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* 4-Sided Dashed Cutting Boundary Box */
+  .card-cut-container {
+    position: relative !important;
+    width: 95mm !important;
+    height: 68mm !important;
+    max-width: 95mm !important;
+    max-height: 68mm !important;
+    border: 1px dashed #7A5239 !important;
+    border-radius: 2mm !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 1.5mm !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  .card-cut-corner-mark {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-size: 6pt !important;
+    color: #7A5239 !important;
+    font-family: monospace !important;
+    line-height: 1 !important;
+    margin-bottom: 1mm !important;
+    padding: 0 1mm !important;
+    letter-spacing: 0.3px !important;
+  }
+
+  /* Standard Bouquet Card Body (Pure White Background, Zero Ink Waste) */
+  .card-printable-item,
   #printable-greeting-card {
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
-    width: 100mm !important;
-    height: 70mm !important;
-    min-width: 100mm !important;
-    max-width: 100mm !important;
-    min-height: 70mm !important;
-    max-height: 70mm !important;
-    margin: 0 auto !important;
-    padding: 5mm 6mm !important;
+    width: 100% !important;
+    height: calc(100% - 3mm) !important;
+    margin: 0 !important;
+    padding: 3.5mm 4.5mm !important;
     background: #ffffff !important;
+    background-color: #ffffff !important;
     background-image: none !important;
     color: #2C1F17 !important;
-    border: 1.5pt solid #7A5239 !important;
-    border-radius: 3mm !important;
+    border: 1.2pt solid #7A5239 !important;
+    border-radius: 2.5mm !important;
     box-shadow: none !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+    filter: none !important;
     position: relative !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
+  .card-printable-item *,
   #printable-greeting-card * {
     background-color: transparent !important;
     background-image: none !important;
     text-shadow: none !important;
     box-shadow: none !important;
+    filter: none !important;
   }
 
+  .card-printable-item .card-inner-border,
   #printable-greeting-card .card-inner-border {
-    border: 0.75pt dashed #7A5239 !important;
+    border: 0.6pt dashed #7A5239 !important;
     opacity: 0.55 !important;
   }
 
+  .card-printable-item .card-flourish,
   #printable-greeting-card .card-flourish {
     color: #7A5239 !important;
     -webkit-text-fill-color: #7A5239 !important;
     opacity: 0.65 !important;
   }
 
+  .card-printable-item .card-brand-title,
   #printable-greeting-card .card-brand-title {
     color: #7A5239 !important;
     -webkit-text-fill-color: #7A5239 !important;
-    font-size: 7pt !important;
+    font-size: 6.5pt !important;
     letter-spacing: 2px !important;
   }
 
+  .card-printable-item .card-headline,
   #printable-greeting-card .card-headline {
     color: #2C1F17 !important;
     -webkit-text-fill-color: #2C1F17 !important;
-    font-size: 15pt !important;
+    font-size: 13pt !important;
     line-height: 1.15 !important;
     font-style: italic !important;
   }
 
+  .card-printable-item .card-recipient,
   #printable-greeting-card .card-recipient {
     color: #A85842 !important;
     -webkit-text-fill-color: #A85842 !important;
-    font-size: 10.5pt !important;
+    font-size: 9.5pt !important;
     font-weight: bold !important;
   }
 
+  .card-printable-item .card-message,
   #printable-greeting-card .card-message {
     color: #4A3528 !important;
     -webkit-text-fill-color: #4A3528 !important;
-    font-size: 8pt !important;
+    font-size: 7.5pt !important;
     font-style: italic !important;
     line-height: 1.25 !important;
   }
 
+  .card-printable-item .card-sender,
   #printable-greeting-card .card-sender {
     color: #7A5239 !important;
     -webkit-text-fill-color: #7A5239 !important;
-    font-size: 7.5pt !important;
+    font-size: 7pt !important;
   }
 }
