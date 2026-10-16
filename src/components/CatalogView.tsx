@@ -80,32 +80,36 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
         </div>
 
         {/* 5 Categories List - Matching Image 2 Style with Rich Features */}
-        <div className="mt-8 space-y-4 max-w-xl mx-auto">
+        <div className="mt-8 space-y-4 max-w-2xl lg:max-w-3xl mx-auto">
           {CATALOG_ITEMS.map((item, idx) => (
             <div
               key={item.id}
               className="group p-4 sm:p-5 rounded-2xl bg-[#FAF6F0] hover:bg-[#F5ECE1] border border-[#EADBCE] transition-all hover:shadow-md text-left flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-[#EADBCE] text-[#7A5239] text-xs font-bold flex items-center justify-center">
-                    {idx + 1}
-                  </span>
-                  <a
-                    href={item.driveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-serif italic text-lg sm:text-xl font-medium text-[#2C1F17] underline decoration-[#C48B71] underline-offset-4 hover:text-[#A85842] transition-colors"
-                  >
-                    {item.title}
-                  </a>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white text-[#7A5239] border border-[#EADBCE]">
-                    {item.badge}
-                  </span>
+              {/* Left Side: Number + Title/Chip/Tagline */}
+              <div className="flex items-start gap-3.5 min-w-0 flex-1">
+                <span className="w-7 h-7 rounded-full bg-[#EADBCE] text-[#7A5239] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                  {idx + 1}
+                </span>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                    <a
+                      href={item.driveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-serif italic text-lg sm:text-xl font-bold text-[#2C1F17] underline decoration-[#C48B71] underline-offset-4 hover:text-[#A85842] transition-colors"
+                    >
+                      {item.title}
+                    </a>
+                    <span className="inline-flex items-center text-[10px] sm:text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white text-[#7A5239] border border-[#EADBCE] shadow-2xs whitespace-nowrap shrink-0">
+                      {item.badge}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#6B4E3D] mt-1 leading-relaxed">
+                    {item.tagline}
+                  </p>
                 </div>
-                <p className="text-xs text-[#6B4E3D] pl-8">
-                  {item.tagline}
-                </p>
               </div>
 
               {/* Actions for each item */}
@@ -125,7 +129,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                   href={item.driveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-xl bg-[#7A5239] hover:bg-[#5C3D2E] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  className="px-3.5 py-1.5 rounded-xl bg-[#7A5239] hover:bg-[#5C3D2E] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
                   title="Buka File Google Drive"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -137,7 +141,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                   href={getWaUrlForCategory(item)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
                   title="Tanya Koleksi Ini"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
