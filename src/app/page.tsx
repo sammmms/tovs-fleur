@@ -26,7 +26,7 @@ export default function Home() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isSetupModalOpen, setIsSetupModalOpen] = useState(false);
   
-  // Auth state (username: admin, pw: TovsFleur123)
+  // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);

@@ -16,7 +16,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   onClose,
   onLoginSuccess,
 }) => {
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -30,7 +30,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       onLoginSuccess();
       onClose();
     } else {
-      setError('Username atau password salah! (Gunakan admin / TovsFleur123)');
+      setError('Username atau password salah. Silakan periksa kembali.');
     }
   };
 
@@ -103,7 +103,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#A85842]"
-                placeholder="••••••••"
+                placeholder="Masukkan password"
               />
             </div>
           </div>
