@@ -30,13 +30,22 @@ export const metadata: Metadata = {
   description: "Florist based in Medan & Lubuk Pakam. Fresh flowers, Artificial bouquets, Preserved glass dome, Bloom box & Instant Florist Invoicing.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/logo.png",
-    apple: "/apple-touch-icon.png",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
   },
   openGraph: {
     title: "Tov's Fleur - Boutique Florist & Invoice",
     description: "Share some blooms and happiness. Based in Medan & Lubuk Pakam.",
-    images: [{ url: "/logo.png" }],
+    images: [{ url: "/icon-512.png" }],
   },
 };
 
@@ -48,6 +57,8 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${cormorant.variable} ${jakarta.variable}`}>
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.png" type="image/png" sizes="192x192" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className="min-h-screen bg-[#FAF6F0] text-[#2A2421] font-sans antialiased selection:bg-[#E8D8C8] selection:text-[#5C3D2E]">

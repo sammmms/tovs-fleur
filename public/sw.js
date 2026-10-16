@@ -1,7 +1,10 @@
-const CACHE_NAME = 'tovs-fleur-v2';
+const CACHE_NAME = 'tovs-fleur-v3';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
+  '/favicon.ico',
+  '/icon.png',
+  '/favicon-32x32.png',
   '/logo.png',
   '/icon-192.png',
   '/icon-512.png',
