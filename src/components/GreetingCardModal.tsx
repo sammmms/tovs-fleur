@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { BRAND } from '@/lib/constants';
 
-type CardTheme = 'graduation' | 'birthday' | 'romance' | 'congratulations' | 'botanical';
+type CardTheme = 'minimalist' | 'graduation' | 'birthday' | 'romance' | 'congratulations' | 'botanical';
 
 interface GreetingCardModalProps {
   initialGreeting?: string;
@@ -29,7 +29,7 @@ export const GreetingCardModal: React.FC<GreetingCardModalProps> = ({
   initialRecipient = 'Naomi Prisella, S. Kom.',
   onClose,
 }) => {
-  const [theme, setTheme] = useState<CardTheme>('graduation');
+  const [theme, setTheme] = useState<CardTheme>('minimalist');
   const [headline, setHeadline] = useState('Wisudatulation');
   const [recipient, setRecipient] = useState(initialRecipient);
   const [message, setMessage] = useState('Semoga ilmunya berkah dan sukses selalu menanti di langkah selanjutnya! ✨');
@@ -50,7 +50,7 @@ export const GreetingCardModal: React.FC<GreetingCardModalProps> = ({
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto py-6 px-4 space-y-6">
+    <div className="greeting-card-modal-root w-full max-w-5xl mx-auto py-6 px-4 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#EADBCE] no-print">
         <div>
@@ -61,7 +61,7 @@ export const GreetingCardModal: React.FC<GreetingCardModalProps> = ({
             Cetak Kartu Ucapan Buket Eksklusif
           </h2>
           <p className="text-xs sm:text-sm text-[#7A5239]">
-            Pilih tema estetik untuk disematkan di buket Tov’s Fleur. Desain menyesuaikan momen spesial.
+            Pilih tema estetik untuk disematkan di buket Tov’s Fleur. Otomatis hemat tinta printer dengan format kartu buket (10cm × 7cm).
           </p>
         </div>
 
@@ -74,7 +74,15 @@ export const GreetingCardModal: React.FC<GreetingCardModalProps> = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8">
+      {/* Ink Saving Notice */}
+      <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs no-print">
+        <span className="text-base shrink-0">🖨️</span>
+        <div className="leading-relaxed">
+          <strong>Mode Cetak Hemat Tinta:</strong> Saat dicetak ke printer, background gelap/warna otomatis diubah menjadi <strong>putih bersih (Zero Ink Waste)</strong> dengan ukuran standar buket bunga <strong>10 cm × 7 cm</strong> dan panduan garis potong rapi tanpa buang-buang tinta printer.
+        </div>
+      </div>
+
+      <div className="greeting-card-modal-grid grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8">
         {/* Editor Form (5 Cols) */}
         <div className="md:col-span-5 space-y-4 no-print">
           <div className="bg-white rounded-2xl p-5 border border-[#EADBCE] shadow-xs space-y-3">
@@ -83,8 +91,28 @@ export const GreetingCardModal: React.FC<GreetingCardModalProps> = ({
               <span>1. Pilih Tema & Preset Momen</span>
             </h3>
             
-            {/* 5 Preset buttons */}
+            {/* Presets */}
             <div className="space-y-2">
+              {/* Minimalist Putih (Hemat Tinta / Karton Putih) */}
+              <button
+                type="button"
+                onClick={() => applyPreset('minimalist', 'Especially For You', 'Semoga hari-harimu selalu bahagia dan penuh kehangatan.')}
+                className={`w-full p-2.5 rounded-xl text-left text-xs font-semibold border flex items-center justify-between transition-all cursor-pointer ${
+                  theme === 'minimalist'
+                    ? 'border-[#7A5239] bg-white text-[#2C1F17] shadow-xs ring-2 ring-[#7A5239]/20'
+                    : 'border-[#D8C3B1] bg-[#FAF6F0] text-[#6B4E3D] hover:bg-[#EADBCE]'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="p-1 rounded-lg bg-emerald-100 text-emerald-800">🖨️</span>
+                  <div>
+                    <span className="block font-bold">Minimalist Putih (Hemat Tinta)</span>
+                    <span className="text-[10px] opacity-80 font-normal">Karton Putih • Garis Elegan • Zero Ink Waste</span>
+                  </div>
+                </div>
+                <Sparkles className="w-4 h-4 text-[#7A5239]" />
+              </button>
+
               {/* Graduation */}
               <button
                 type="button"
@@ -243,103 +271,118 @@ export const GreetingCardModal: React.FC<GreetingCardModalProps> = ({
         </div>
 
         {/* Live Card Preview (7 Cols) */}
-        <div className="md:col-span-7 flex flex-col items-center justify-center">
-          {/* Card Frame based on Theme */}
-          <div
-            id="printable-greeting-card"
-            className={`w-full max-w-md aspect-[1.4/1] rounded-2xl p-6 sm:p-7 flex flex-col justify-between shadow-xl relative overflow-hidden text-center transition-all ${
-              theme === 'graduation'
-                ? 'bg-zinc-950 text-white border-4 border-amber-400'
-                : theme === 'birthday'
-                ? 'bg-gradient-to-br from-[#FFF5F7] via-[#FFF0F4] to-[#FFE8EE] text-[#4A202A] border-4 border-pink-300'
-                : theme === 'romance'
-                ? 'bg-gradient-to-br from-[#2D0A13] via-[#3B0E1B] to-[#25070F] text-rose-50 border-4 border-[#C48B71]'
-                : theme === 'congratulations'
-                ? 'bg-gradient-to-br from-[#07241B] via-[#0E3528] to-[#082018] text-emerald-50 border-4 border-amber-300'
-                : 'bg-[#FAF6F0] text-[#2C1F17] border-4 border-[#D8C3B1]'
-            }`}
-          >
-            {/* Inner Border */}
-            <div className={`absolute inset-2.5 rounded-xl pointer-events-none border ${
-              theme === 'graduation'
-                ? 'border-amber-400/40'
-                : theme === 'birthday'
-                ? 'border-pink-300/60'
-                : theme === 'romance'
-                ? 'border-[#C48B71]/40'
-                : theme === 'congratulations'
-                ? 'border-amber-300/40'
-                : 'border-[#D8C3B1]/80'
-            }`} />
+        <div className="md:col-span-7 flex flex-col items-center justify-center greeting-card-print-area">
+          <div className="print-card-wrapper w-full flex flex-col items-center justify-center">
+            {/* Cutting Guide Line (Print Only) */}
+            <div className="print-only print-cutting-guide">
+              ✂ - - - - - - - - - - Garis Potong Kartu Buket Tov’s Fleur (10 cm × 7 cm) - - - - - - - - - - ✂
+            </div>
 
-            {/* Corner Ornamental Accents */}
-            <div className="absolute top-2 left-2 text-xs select-none opacity-60">❦</div>
-            <div className="absolute top-2 right-2 text-xs select-none opacity-60">❧</div>
-            <div className="absolute bottom-2 left-2 text-xs select-none opacity-60">❧</div>
-            <div className="absolute bottom-2 right-2 text-xs select-none opacity-60">❦</div>
+            {/* Card Frame based on Theme */}
+            <div
+              id="printable-greeting-card"
+              className={`w-full max-w-md aspect-[1.4/1] rounded-2xl p-6 sm:p-7 flex flex-col justify-between shadow-xl relative overflow-hidden text-center transition-all ${
+                theme === 'minimalist'
+                  ? 'bg-white text-[#2C1F17] border-4 border-[#7A5239]'
+                  : theme === 'graduation'
+                  ? 'bg-zinc-950 text-white border-4 border-amber-400'
+                  : theme === 'birthday'
+                  ? 'bg-gradient-to-br from-[#FFF5F7] via-[#FFF0F4] to-[#FFE8EE] text-[#4A202A] border-4 border-pink-300'
+                  : theme === 'romance'
+                  ? 'bg-gradient-to-br from-[#2D0A13] via-[#3B0E1B] to-[#25070F] text-rose-50 border-4 border-[#C48B71]'
+                  : theme === 'congratulations'
+                  ? 'bg-gradient-to-br from-[#07241B] via-[#0E3528] to-[#082018] text-emerald-50 border-4 border-amber-300'
+                  : 'bg-[#FAF6F0] text-[#2C1F17] border-4 border-[#D8C3B1]'
+              }`}
+            >
+              {/* Inner Border */}
+              <div className={`card-inner-border absolute inset-2.5 rounded-xl pointer-events-none border ${
+                theme === 'minimalist'
+                  ? 'border-[#7A5239]/40 border-dashed'
+                  : theme === 'graduation'
+                  ? 'border-amber-400/40'
+                  : theme === 'birthday'
+                  ? 'border-pink-300/60'
+                  : theme === 'romance'
+                  ? 'border-[#C48B71]/40'
+                  : theme === 'congratulations'
+                  ? 'border-amber-300/40'
+                  : 'border-[#D8C3B1]/80'
+              }`} />
 
-            {/* Top Logo Badge */}
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full overflow-hidden border border-current/30 p-0.5 bg-white/10 mb-0.5">
-                <Image
-                  src="/logo.png"
-                  alt="Tov's Fleur Logo"
-                  width={32}
-                  height={32}
-                  className="w-full h-full object-contain"
-                />
+              {/* Corner Ornamental Accents */}
+              <div className="card-flourish absolute top-2 left-2 text-xs select-none opacity-60">❦</div>
+              <div className="card-flourish absolute top-2 right-2 text-xs select-none opacity-60">❧</div>
+              <div className="card-flourish absolute bottom-2 left-2 text-xs select-none opacity-60">❧</div>
+              <div className="card-flourish absolute bottom-2 right-2 text-xs select-none opacity-60">❦</div>
+
+              {/* Top Logo Badge */}
+              <div className="flex flex-col items-center">
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-current/30 p-0.5 bg-white/10 mb-0.5">
+                  <Image
+                    src="/logo.png"
+                    alt="Tov's Fleur Logo"
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className={`card-brand-title font-serif tracking-[0.25em] text-[9px] uppercase font-bold ${
+                  theme === 'minimalist' ? 'text-[#7A5239]' : theme === 'graduation' ? 'text-amber-300' : theme === 'birthday' ? 'text-pink-600' : theme === 'romance' ? 'text-rose-300' : theme === 'congratulations' ? 'text-amber-300' : 'text-[#7A5239]'
+                }`}>
+                  TOV’S FLEUR
+                </span>
               </div>
-              <span className={`font-serif tracking-[0.25em] text-[9px] uppercase font-bold ${
-                theme === 'graduation' ? 'text-amber-300' : theme === 'birthday' ? 'text-pink-600' : theme === 'romance' ? 'text-rose-300' : theme === 'congratulations' ? 'text-amber-300' : 'text-[#7A5239]'
-              }`}>
-                TOV’S FLEUR
-              </span>
-            </div>
 
-            {/* Card Main Body */}
-            <div className="my-auto py-1 space-y-1">
-              <h4 className={`font-serif italic text-2xl sm:text-3xl font-bold leading-tight ${
-                theme === 'graduation'
-                  ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-100'
-                  : theme === 'birthday'
-                  ? 'text-pink-700'
-                  : theme === 'romance'
-                  ? 'text-rose-200'
-                  : theme === 'congratulations'
-                  ? 'text-amber-200'
-                  : 'text-[#2C1F17]'
-              }`}>
-                {headline}
-              </h4>
+              {/* Card Main Body */}
+              <div className="my-auto py-1 space-y-1">
+                <h4 className={`card-headline font-serif italic text-2xl sm:text-3xl font-bold leading-tight ${
+                  theme === 'minimalist'
+                    ? 'text-[#2C1F17]'
+                    : theme === 'graduation'
+                    ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-100'
+                    : theme === 'birthday'
+                    ? 'text-pink-700'
+                    : theme === 'romance'
+                    ? 'text-rose-200'
+                    : theme === 'congratulations'
+                    ? 'text-amber-200'
+                    : 'text-[#2C1F17]'
+                }`}>
+                  {headline}
+                </h4>
 
-              <p className={`font-sans font-bold text-sm sm:text-base tracking-wide ${
-                theme === 'graduation'
-                  ? 'text-amber-100'
-                  : theme === 'birthday'
-                  ? 'text-[#6A2B3D]'
-                  : theme === 'romance'
-                  ? 'text-white'
-                  : theme === 'congratulations'
-                  ? 'text-white'
-                  : 'text-[#A85842]'
-              }`}>
-                {recipient}
-              </p>
-
-              {message && (
-                <p className="font-serif text-xs sm:text-sm italic max-w-xs mx-auto px-2 line-clamp-2 opacity-90">
-                  "{message}"
+                <p className={`card-recipient font-sans font-bold text-sm sm:text-base tracking-wide ${
+                  theme === 'minimalist'
+                    ? 'text-[#A85842]'
+                    : theme === 'graduation'
+                    ? 'text-amber-100'
+                    : theme === 'birthday'
+                    ? 'text-[#6A2B3D]'
+                    : theme === 'romance'
+                    ? 'text-white'
+                    : theme === 'congratulations'
+                    ? 'text-white'
+                    : 'text-[#A85842]'
+                }`}>
+                  {recipient}
                 </p>
-              )}
-            </div>
 
-            {/* Card Footer */}
-            <div className="text-right pr-2">
-              {sender && (
-                <p className="text-[11px] font-medium italic opacity-85">
-                  With Love, <span className="font-bold not-italic">{sender}</span>
-                </p>
-              )}
+                {message && (
+                  <p className="card-message font-serif text-xs sm:text-sm italic max-w-xs mx-auto px-2 line-clamp-2 opacity-90">
+                    "{message}"
+                  </p>
+                )}
+              </div>
+
+              {/* Card Footer */}
+              <div className="card-sender text-right pr-2">
+                {sender && (
+                  <p className="text-[11px] font-medium italic opacity-85">
+                    With Love, <span className="font-bold not-italic">{sender}</span>
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 

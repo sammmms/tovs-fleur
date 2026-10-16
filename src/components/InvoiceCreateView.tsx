@@ -39,6 +39,7 @@ import {
 import { saveInvoiceWithSync } from '@/lib/supabaseStorage';
 import { CustomDatePicker } from './CustomDatePicker';
 import { CustomSelect } from './CustomSelect';
+import { ConfirmModal } from './ConfirmModal';
 
 const BANK_OPTIONS = [
   { value: 'BCA', label: 'BCA (Bank Central Asia)' },
@@ -96,6 +97,7 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
   const [colorScheme, setColorScheme] = useState('Pink');
   const [notes, setNotes] = useState('Skema Warna: Pink. Bunga: Hindari rose, fokus ke bunga ramai, kayak hyd, baby breath, pokonya hindari romantic.');
   const [greetingCard, setGreetingCard] = useState('Wisudatulation\nNaomi Prisella, S. Kom.');
+  const [validationAlert, setValidationAlert] = useState<string | null>(null);
 
   const [items, setItems] = useState<InvoiceItem[]>([
     { id: '1', name: 'Bouquet', price: 180000 },
@@ -131,8 +133,8 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
       setFlowerType(editingInvoice.flowerType);
       setSize(editingInvoice.size);
       setColorScheme(editingInvoice.colorScheme || '');
-      setNotes(editingInvoice.notes || '');
-      setGreetingCard(editingInvoice.greetingCard || '');
+      setNotes((editingInvoice.notes || '').replace(/\\n/g, '\n'));
+      setGreetingCard((editingInvoice.greetingCard || '').replace(/\\n/g, '\n'));
       setItems(editingInvoice.items || []);
     } else {
       const today = getTodayFormattedIndonesian();
@@ -192,7 +194,7 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
 
   const handleSave = async (openPrint: boolean = false, sendWa: boolean = false) => {
     if (!customerName.trim()) {
-      alert('Mohon isi Nama Pemesan!');
+      setValidationAlert('Mohon lengkapi Nama Pemesan sebelum menyimpan faktur!');
       return;
     }
 
@@ -433,7 +435,6 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                   onChange={(e) => setCustomerName(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#A85842]"
                   placeholder="Samuel Onasis"
-                  required
                 />
               </div>
 
@@ -646,7 +647,7 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                   Catatan Pemesan / Preferensi Bunga
                 </label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none"
@@ -664,7 +665,7 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setGreetingCard(`Wisudatulation\n${recipientName || 'Naomi Prisella, S. Kom.'}`)}
-                    className="text-[10px] text-[#A85842] hover:underline"
+                    className="text-[10px] text-[#A85842] hover:underline cursor-pointer"
                   >
                     Template Wisuda
                   </button>
@@ -672,18 +673,18 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setGreetingCard(`Happy Birthday!\nMay all your wishes come true.`)}
-                    className="text-[10px] text-[#A85842] hover:underline"
+                    className="text-[10px] text-[#A85842] hover:underline cursor-pointer"
                   >
                     Template Ulang Tahun
                   </button>
                 </div>
               </div>
               <textarea
-                rows={2}
+                rows={3}
                 value={greetingCard}
                 onChange={(e) => setGreetingCard(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none font-serif"
-                placeholder="Wisudatulation Naomi Prisella, S. Kom."
+                className="w-full px-3 py-2 rounded-xl border border-[#D8C3B1] text-xs sm:text-sm focus:outline-none font-serif leading-relaxed"
+                placeholder={'Wisudatulation\nNaomi Prisella, S. Kom.'}
               />
             </div>
           </div>
@@ -845,8 +846,8 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
                   <span className="text-[10px] uppercase font-bold text-[#A85842] block mb-0.5">
                     Kartu Ucapan:
                   </span>
-                  <p className="font-serif italic text-xs text-[#2C1F17] whitespace-pre-line">
-                    "{greetingCard}"
+                  <p className="font-serif italic text-xs text-[#2C1F17] whitespace-pre-line leading-relaxed">
+                    "{greetingCard.replace(/\\n/g, '\n')}"
                   </p>
                 </div>
               )}
@@ -891,6 +892,19 @@ export const InvoiceCreateView: React.FC<InvoiceCreateViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Custom Designed Validation Alert Modal */}
+      {validationAlert && (
+        <ConfirmModal
+          isOpen={!!validationAlert}
+          type="alert"
+          title="Informasi Diperlukan"
+          message={validationAlert}
+          confirmText="Mengerti"
+          onConfirm={() => setValidationAlert(null)}
+          onCancel={() => setValidationAlert(null)}
+        />
+      )}
     </div>
   );
 };

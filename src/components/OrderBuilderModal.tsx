@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { OrderFormValues, FlowerType, BouquetSize } from '@/types';
 import { generateOrderWhatsAppUrl } from '@/lib/storage';
+import { ConfirmModal } from './ConfirmModal';
 
 interface OrderBuilderModalProps {
   isOpen: boolean;
@@ -38,13 +39,14 @@ export const OrderBuilderModal: React.FC<OrderBuilderModalProps> = ({
     deliveryDate: '',
     location: 'Medan',
   });
+  const [validationAlert, setValidationAlert] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.customerName.trim()) {
-      alert('Mohon isi nama Anda!');
+      setValidationAlert('Mohon isi nama Anda terlebih dahulu sebelum mengirim pesanan ke WhatsApp!');
       return;
     }
     const url = generateOrderWhatsAppUrl(form);
@@ -80,7 +82,7 @@ export const OrderBuilderModal: React.FC<OrderBuilderModalProps> = ({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        <form onSubmit={handleSubmit} noValidate className="flex-1 min-h-0 flex flex-col overflow-hidden">
           <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs sm:text-sm">
             {/* Customer & Recipient */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -249,6 +251,19 @@ export const OrderBuilderModal: React.FC<OrderBuilderModalProps> = ({
           </div>
         </form>
       </div>
+
+      {/* Custom Designed Validation Alert Modal */}
+      {validationAlert && (
+        <ConfirmModal
+          isOpen={!!validationAlert}
+          type="alert"
+          title="Informasi Diperlukan"
+          message={validationAlert}
+          confirmText="Mengerti"
+          onConfirm={() => setValidationAlert(null)}
+          onCancel={() => setValidationAlert(null)}
+        />
+      )}
     </div>
   );
 };

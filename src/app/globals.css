@@ -45,6 +45,11 @@ body {
   background: #A85842;
 }
 
+/* Hidden on screen, visible only when printing */
+.print-only {
+  display: none !important;
+}
+
 /* ==========================================================================
    PRINT STYLESHEET (PROFESSIONAL A4 INVOICES & GREETING CARDS)
    ========================================================================== */
@@ -150,12 +155,129 @@ body {
     padding-bottom: 0 !important;
   }
 
-  /* Greeting Card Printing (10cm x 7cm standard card) */
-  .print-card-only {
+  /* Show print-only elements */
+  .print-only {
     display: block !important;
-    margin: 30mm auto !important;
+  }
+
+  /* Greeting Card Printing (Exact 10cm x 7cm card, Zero Ink Waste white background) */
+  .greeting-card-modal-root {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .greeting-card-modal-grid {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .greeting-card-print-area {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-card-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    margin: 15mm auto 0 auto !important;
+    padding: 0 !important;
+  }
+
+  .print-cutting-guide {
+    display: block !important;
+    width: 100mm !important;
+    text-align: center !important;
+    margin-bottom: 3mm !important;
+    font-size: 8pt !important;
+    color: #7A5239 !important;
+    font-family: monospace !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  /* Standard Florist Bouquet Card: 100mm x 70mm, Pure White (Zero Ink Waste), Crisp Double Florist Border */
+  #printable-greeting-card {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    width: 100mm !important;
+    height: 70mm !important;
+    min-width: 100mm !important;
+    max-width: 100mm !important;
+    min-height: 70mm !important;
+    max-height: 70mm !important;
+    margin: 0 auto !important;
+    padding: 5mm 6mm !important;
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #2C1F17 !important;
+    border: 1.5pt solid #7A5239 !important;
+    border-radius: 3mm !important;
     box-shadow: none !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+  }
+
+  #printable-greeting-card * {
+    background-color: transparent !important;
+    background-image: none !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  #printable-greeting-card .card-inner-border {
+    border: 0.75pt dashed #7A5239 !important;
+    opacity: 0.55 !important;
+  }
+
+  #printable-greeting-card .card-flourish {
+    color: #7A5239 !important;
+    -webkit-text-fill-color: #7A5239 !important;
+    opacity: 0.65 !important;
+  }
+
+  #printable-greeting-card .card-brand-title {
+    color: #7A5239 !important;
+    -webkit-text-fill-color: #7A5239 !important;
+    font-size: 7pt !important;
+    letter-spacing: 2px !important;
+  }
+
+  #printable-greeting-card .card-headline {
+    color: #2C1F17 !important;
+    -webkit-text-fill-color: #2C1F17 !important;
+    font-size: 15pt !important;
+    line-height: 1.15 !important;
+    font-style: italic !important;
+  }
+
+  #printable-greeting-card .card-recipient {
+    color: #A85842 !important;
+    -webkit-text-fill-color: #A85842 !important;
+    font-size: 10.5pt !important;
+    font-weight: bold !important;
+  }
+
+  #printable-greeting-card .card-message {
+    color: #4A3528 !important;
+    -webkit-text-fill-color: #4A3528 !important;
+    font-size: 8pt !important;
+    font-style: italic !important;
+    line-height: 1.25 !important;
+  }
+
+  #printable-greeting-card .card-sender {
+    color: #7A5239 !important;
+    -webkit-text-fill-color: #7A5239 !important;
+    font-size: 7.5pt !important;
   }
 }

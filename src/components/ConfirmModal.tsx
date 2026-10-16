@@ -6,13 +6,13 @@ import { AlertTriangle, Copy, Trash2, LogOut, X } from 'lucide-react';
 
 interface ConfirmModalProps {
   isOpen: boolean;
-  type?: 'delete' | 'duplicate' | 'logout';
+  type?: 'delete' | 'duplicate' | 'logout' | 'alert' | 'warning';
   title: string;
   message: string;
   confirmText?: string;
   cancelText?: string;
   onConfirm: () => void;
-  onCancel: () => void;
+  onCancel?: () => void;
 }
 
 export const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -29,16 +29,30 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   const isDelete = type === 'delete';
   const isDuplicate = type === 'duplicate';
+  const isAlert = type === 'alert' || type === 'warning';
 
   const defaultConfirmText = isDelete
     ? 'Ya, Hapus'
     : isDuplicate
     ? 'Ya, Duplikat'
+    : isAlert
+    ? 'Mengerti'
     : 'Ya, Lanjutkan';
 
   return (
     <div className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
       <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-[#D8C3B1] flex flex-col text-center relative overflow-hidden">
+        {/* Close Button for Alert */}
+        {isAlert && (
+          <button
+            type="button"
+            onClick={onCancel || onConfirm}
+            className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-[#FAF6F0] text-zinc-400 hover:text-zinc-600 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Icon Badge */}
         <div className="mx-auto mb-3">
           {isDelete ? (
@@ -48,6 +62,10 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           ) : isDuplicate ? (
             <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center">
               <Copy className="w-6 h-6" />
+            </div>
+          ) : isAlert ? (
+            <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6" />
             </div>
           ) : (
             <div className="w-12 h-12 rounded-full bg-[#EADBCE] text-[#7A5239] flex items-center justify-center">
@@ -66,13 +84,15 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
         {/* Actions */}
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex-1 py-2.5 px-4 rounded-xl border border-[#D8C3B1] bg-white hover:bg-[#FAF6F0] text-xs font-semibold text-[#7A5239] transition-colors cursor-pointer"
-          >
-            {cancelText}
-          </button>
+          {!isAlert && onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 py-2.5 px-4 rounded-xl border border-[#D8C3B1] bg-white hover:bg-[#FAF6F0] text-xs font-semibold text-[#7A5239] transition-colors cursor-pointer"
+            >
+              {cancelText}
+            </button>
+          )}
 
           <button
             type="button"
@@ -81,6 +101,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               isDelete
                 ? 'bg-rose-600 hover:bg-rose-700'
                 : isDuplicate
+                ? 'bg-[#7A5239] hover:bg-[#5C3D2E]'
+                : isAlert
                 ? 'bg-[#7A5239] hover:bg-[#5C3D2E]'
                 : 'bg-[#A85842] hover:bg-[#7A5239]'
             }`}

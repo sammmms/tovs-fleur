@@ -12,7 +12,12 @@ export function getStoredInvoices(): Invoice[] {
       return INITIAL_INVOICES;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : INITIAL_INVOICES;
+    const invoices = Array.isArray(parsed) ? parsed : INITIAL_INVOICES;
+    return invoices.map((inv: Invoice) => ({
+      ...inv,
+      notes: (inv.notes || '').replace(/\\n/g, '\n'),
+      greetingCard: (inv.greetingCard || '').replace(/\\n/g, '\n'),
+    }));
   } catch (e) {
     console.error('Error reading stored invoices:', e);
     return INITIAL_INVOICES;
