@@ -83,17 +83,18 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="px-3.5 py-1.5 rounded-xl bg-[#7A5239] hover:bg-[#5C3D2E] text-white text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-[#7A5239] hover:bg-[#5C3D2E] text-white text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <Printer className="w-4 h-4" />
-              <span>Cetak / Unduh PDF</span>
+              <Printer className="w-4 h-4 shrink-0" />
+              <span>Cetak <span className="hidden sm:inline">/ Unduh</span> PDF</span>
             </button>
 
             <button
               onClick={handleSendWhatsApp}
-              className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="p-1.5 sm:px-3.5 sm:py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Kirim ke WhatsApp"
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="w-4 h-4 shrink-0" />
               <span className="hidden xs:inline">Kirim WA</span>
             </button>
 
@@ -227,7 +228,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
                 💌 Teks Kartu Ucapan:
               </span>
               <p className="font-serif italic text-sm text-[#2C1F17] whitespace-pre-line leading-relaxed">
-                {invoice.greetingCard || '-'}
+                {invoice.greetingCard ? invoice.greetingCard.replace(/\\n/g, '\n') : '-'}
               </p>
             </div>
 
@@ -237,7 +238,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
                 📝 Catatan Pemesan:
               </span>
               <p className="text-zinc-700 whitespace-pre-line leading-relaxed">
-                {invoice.notes || '-'}
+                {invoice.notes ? invoice.notes.replace(/\\n/g, '\n') : '-'}
               </p>
             </div>
           </div>
@@ -307,29 +308,31 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
         </div>
 
         {/* Bottom Control Bar (Hidden when printing) */}
-        <div className="no-print px-6 py-3.5 bg-[#FAF6F0] border-t border-[#EADBCE] flex items-center justify-between">
+        <div className="no-print p-3 sm:px-6 sm:py-3.5 bg-[#FAF6F0] border-t border-[#EADBCE] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-[#D8C3B1] bg-white hover:bg-[#FAF6F0] text-xs font-bold text-[#7A5239] flex items-center gap-1.5 cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#D8C3B1] bg-white hover:bg-[#FAF6F0] text-xs font-bold text-[#7A5239] flex items-center justify-center gap-2 transition-colors cursor-pointer order-2 sm:order-1"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 shrink-0" />
             <span>Kembali ke Daftar Invoice</span>
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto order-1 sm:order-2">
             <button
+              type="button"
               onClick={handleSendWhatsApp}
-              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+              className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="w-4 h-4 shrink-0" />
               <span>Kirim WA</span>
             </button>
             <button
+              type="button"
               onClick={handlePrint}
-              className="px-4 py-2 rounded-xl bg-[#7A5239] hover:bg-[#5C3D2E] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+              className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-[#7A5239] hover:bg-[#5C3D2E] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
             >
-              <Printer className="w-4 h-4" />
+              <Printer className="w-4 h-4 shrink-0" />
               <span>Cetak / PDF</span>
             </button>
           </div>

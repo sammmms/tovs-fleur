@@ -217,7 +217,7 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
                       💌 Teks Kartu Ucapan:
                     </span>
                     <p className="font-serif italic text-xs sm:text-sm text-[#2C1F17] whitespace-pre-line leading-relaxed">
-                      {invoice.greetingCard || '-'}
+                      {invoice.greetingCard ? invoice.greetingCard.replace(/\\n/g, '\n') : '-'}
                     </p>
                   </div>
 
@@ -226,7 +226,7 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
                       📝 Catatan Pemesan:
                     </span>
                     <p className="text-zinc-700 whitespace-pre-line leading-relaxed text-[11px]">
-                      {invoice.notes || '-'}
+                      {invoice.notes ? invoice.notes.replace(/\\n/g, '\n') : '-'}
                     </p>
                   </div>
                 </div>
@@ -290,22 +290,22 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
         </div>
 
         {/* Bottom Control Bar (Hidden when printing) */}
-        <div className="no-print px-6 py-4 bg-[#FAF6F0] border-t border-[#EADBCE] flex items-center justify-between">
+        <div className="no-print p-3 sm:px-6 sm:py-3.5 bg-[#FAF6F0] border-t border-[#EADBCE] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-[#D8C3B1] bg-white hover:bg-[#FAF6F0] text-xs font-bold text-[#7A5239] flex items-center gap-1.5 cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#D8C3B1] bg-white hover:bg-[#FAF6F0] text-xs font-bold text-[#7A5239] flex items-center justify-center gap-2 transition-colors cursor-pointer order-2 sm:order-1"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 shrink-0" />
             <span>Kembali ke Daftar Invoice</span>
           </button>
 
           <button
             type="button"
             onClick={handlePrint}
-            className="px-5 py-2.5 rounded-xl bg-[#7A5239] hover:bg-[#5C3D2E] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#7A5239] hover:bg-[#5C3D2E] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-xs cursor-pointer order-1 sm:order-2 whitespace-nowrap"
           >
-            <Printer className="w-4 h-4" />
+            <Printer className="w-4 h-4 shrink-0" />
             <span>Cetak Semua ({invoices.length} Halaman PDF)</span>
           </button>
         </div>
