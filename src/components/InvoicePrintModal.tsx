@@ -54,13 +54,13 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start justify-center p-2 sm:p-6 overflow-y-auto"
+      className="print-modal-wrapper fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-start justify-center p-2 sm:p-6 overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       {/* Modal Container */}
-      <div className="bg-white rounded-3xl w-full max-w-3xl my-4 sm:my-8 flex flex-col shadow-2xl border border-[#D8C3B1] overflow-hidden relative">
+      <div className="print-modal-content bg-white rounded-3xl w-full max-w-3xl my-4 sm:my-8 flex flex-col shadow-2xl border border-[#D8C3B1] overflow-hidden relative">
         {/* Top Control Bar (Sticky & Hidden when printing) */}
         <div className="sticky top-0 z-20 no-print px-4 sm:px-6 py-3.5 bg-[#FAF6F0] border-b border-[#EADBCE] flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
@@ -107,8 +107,8 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
           </div>
         </div>
 
-        {/* Printable Invoice Sheet (Matching /Users/sam/Downloads/2026-10-15 TF_Samuel Onasis_1.pdf format) */}
-        <div id="printable-invoice" className="p-6 sm:p-10 bg-white text-[#2C1F17] print-container">
+        {/* Printable Invoice Sheet (Matching exact boutique invoice format) */}
+        <div id="printable-invoice" className="print-invoice-sheet p-6 sm:p-10 print:p-0 bg-white text-[#2C1F17]">
           {/* Header */}
           <div className="flex items-start justify-between border-b-2 border-[#7A5239] pb-5">
             <div className="flex items-center gap-4">
@@ -158,7 +158,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
           </div>
 
           {/* Invoice Meta Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4 border-b border-[#EADBCE] text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 print:grid-cols-4 gap-3 py-3 sm:py-3.5 border-b border-[#EADBCE] text-xs">
             <div>
               <span className="text-zinc-500 block">Tanggal Pesan:</span>
               <span className="font-semibold text-[#2C1F17]">{invoice.orderDate}</span>
@@ -178,9 +178,9 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
           </div>
 
           {/* Customer & Product Information (Replicating exact PDF rows) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4 border-b border-[#EADBCE] text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3 sm:gap-4 py-3 sm:py-3.5 border-b border-[#EADBCE] text-xs">
             {/* Left: Pemesan & Penerima */}
-            <div className="space-y-2 bg-[#FAF6F0]/60 p-3.5 rounded-xl border border-[#EADBCE]">
+            <div className="space-y-2 bg-[#FAF6F0] p-3 sm:p-3.5 rounded-xl border border-[#EADBCE]">
               <div className="flex justify-between">
                 <span className="text-[#7A5239] font-medium">Nama Pemesan :</span>
                 <span className="font-bold text-[#2C1F17]">{invoice.customerName}</span>
@@ -189,7 +189,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
                 <span className="text-[#7A5239] font-medium">Jenis Kelamin Pemesan :</span>
                 <span className="font-semibold">{invoice.customerGender}</span>
               </div>
-              <div className="border-t border-[#EADBCE]/60 pt-1.5 flex justify-between">
+              <div className="border-t border-[#EADBCE] pt-1.5 flex justify-between">
                 <span className="text-[#7A5239] font-medium">Nama Penerima :</span>
                 <span className="font-bold text-[#2C1F17]">{invoice.recipientName || '-'}</span>
               </div>
@@ -200,7 +200,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
             </div>
 
             {/* Right: Spesifikasi Bunga & Ukuran */}
-            <div className="space-y-2 bg-[#FAF6F0]/60 p-3.5 rounded-xl border border-[#EADBCE]">
+            <div className="space-y-2 bg-[#FAF6F0] p-3 sm:p-3.5 rounded-xl border border-[#EADBCE]">
               <div className="flex justify-between">
                 <span className="text-[#7A5239] font-medium">Nama Produk :</span>
                 <span className="font-bold text-[#2C1F17] text-right">{invoice.productName}</span>
@@ -213,7 +213,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
                 <span className="text-[#7A5239] font-medium">Ukuran :</span>
                 <span className="font-semibold">{invoice.size}</span>
               </div>
-              <div className="border-t border-[#EADBCE]/60 pt-1.5 flex justify-between">
+              <div className="border-t border-[#EADBCE] pt-1.5 flex justify-between">
                 <span className="text-[#7A5239] font-medium">Skema Warna :</span>
                 <span className="font-semibold text-right">{invoice.colorScheme || '-'}</span>
               </div>
@@ -221,9 +221,9 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
           </div>
 
           {/* Greeting Card & Notes Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4 border-b border-[#EADBCE]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3 sm:gap-4 py-3 sm:py-3.5 border-b border-[#EADBCE]">
             {/* Teks Kartu Ucapan */}
-            <div className="p-3.5 rounded-xl border-2 border-dashed border-[#C48B71]/70 bg-[#FAF6F0]/40">
+            <div className="p-3 sm:p-3.5 rounded-xl border-2 border-dashed border-[#C48B71]/70 bg-[#FAF6F0]/60">
               <span className="text-[10px] uppercase font-bold tracking-wider text-[#A85842] block mb-1">
                 💌 Teks Kartu Ucapan:
               </span>
@@ -233,7 +233,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
             </div>
 
             {/* Catatan Pemesan */}
-            <div className="p-3.5 rounded-xl border border-[#EADBCE] bg-[#FAF6F0]/30 text-xs">
+            <div className="p-3 sm:p-3.5 rounded-xl border border-[#EADBCE] bg-[#FAF6F0]/50 text-xs">
               <span className="text-[10px] uppercase font-bold tracking-wider text-[#7A5239] block mb-1">
                 📝 Catatan Pemesan:
               </span>
@@ -244,7 +244,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
           </div>
 
           {/* Itemized Price Table (Perincian Harga) */}
-          <div className="py-4">
+          <div className="py-3 sm:py-4">
             <h3 className="text-xs uppercase font-bold tracking-wider text-[#7A5239] mb-2">
               Perincian Harga (Rp)
             </h3>
@@ -261,11 +261,11 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
                   const isDiscount = item.price < 0;
                   return (
                     <tr key={item.id} className="hover:bg-[#FAF6F0]/50">
-                      <td className="py-2.5 text-zinc-500 font-medium">{idx + 1}</td>
-                      <td className="py-2.5 font-medium text-[#2C1F17]">
+                      <td className="py-2 text-zinc-500 font-medium">{idx + 1}</td>
+                      <td className="py-2 font-medium text-[#2C1F17]">
                         {item.name}
                       </td>
-                      <td className={`py-2.5 text-right font-semibold ${isDiscount ? 'text-rose-600' : 'text-[#2C1F17]'}`}>
+                      <td className={`py-2 text-right font-semibold ${isDiscount ? 'text-rose-600' : 'text-[#2C1F17]'}`}>
                         {formatRupiah(item.price)}
                       </td>
                     </tr>
@@ -274,10 +274,10 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-[#7A5239] text-sm">
-                  <td colSpan={2} className="py-3 text-right font-bold text-[#2C1F17]">
+                  <td colSpan={2} className="py-2.5 text-right font-bold text-[#2C1F17]">
                     Total Harga (Rp) :
                   </td>
-                  <td className="py-3 text-right font-serif font-bold text-lg text-[#A85842]">
+                  <td className="py-2.5 text-right font-serif font-bold text-lg text-[#A85842]">
                     {formatRupiah(invoice.totalAmount)}
                   </td>
                 </tr>
@@ -286,8 +286,8 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
           </div>
 
           {/* Footer & Store Signature */}
-          <div className="pt-6 mt-4 border-t border-[#EADBCE] flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
-            <div className="text-center sm:text-left">
+          <div className="pt-4 mt-2 border-t border-[#EADBCE] flex flex-row items-center justify-between text-xs text-zinc-500 gap-4 pb-2 print:pb-6">
+            <div className="text-left">
               <p className="font-serif italic text-sm text-[#7A5239]">
                 “Thank you for ordering with Tov’s Fleur!”
               </p>
@@ -296,7 +296,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
               </p>
             </div>
 
-            <div className="text-center sm:text-right">
+            <div className="text-right">
               <span className="text-[11px] font-bold text-[#2C1F17] block">
                 Tov’s Fleur Florist Team
               </span>

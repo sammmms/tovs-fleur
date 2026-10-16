@@ -41,9 +41,9 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
   const totalSum = invoices.reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-start justify-center p-2 sm:p-6 overflow-y-auto">
+    <div className="print-modal-wrapper fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-start justify-center p-2 sm:p-6 overflow-y-auto">
       {/* Outer wrapper */}
-      <div className="bg-white rounded-3xl w-full max-w-4xl my-4 sm:my-8 flex flex-col shadow-2xl border border-[#D8C3B1] overflow-hidden relative">
+      <div className="print-modal-content bg-white rounded-3xl w-full max-w-4xl my-4 sm:my-8 flex flex-col shadow-2xl border border-[#D8C3B1] overflow-hidden relative">
         {/* Top Control Bar (Sticky & Always Visible, Hidden when printing) */}
         <div className="sticky top-0 z-30 no-print px-4 sm:px-6 py-3.5 bg-[#FAF6F0] border-b border-[#EADBCE] flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
@@ -88,9 +88,9 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
         </div>
 
         {/* Printable Multi-Page Container */}
-        <div className="p-4 sm:p-8 bg-white text-[#2C1F17] print-container space-y-12">
+        <div className="p-4 sm:p-8 print:p-0 bg-white text-[#2C1F17] print-invoice-sheet space-y-12 print:space-y-0">
           {invoices.map((invoice, index) => (
-            <div key={invoice.id} className="relative">
+            <div key={invoice.id} className="batch-invoice-page relative">
               {/* Screen page indicator (no-print) */}
               <div className="no-print flex items-center justify-between pb-3 mb-4 border-b border-dashed border-[#D8C3B1] text-xs text-[#7A5239]">
                 <span className="font-bold">
@@ -100,7 +100,7 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
               </div>
 
               {/* Single Invoice Document */}
-              <div className="p-4 sm:p-6 bg-white border border-[#EADBCE] rounded-2xl shadow-xs print:border-none print:p-0 print:shadow-none">
+              <div className="p-4 sm:p-6 print:p-0 bg-white border border-[#EADBCE] print:border-none rounded-2xl print:rounded-none shadow-xs print:shadow-none">
                 {/* Header */}
                 <div className="flex items-start justify-between border-b-2 border-[#7A5239] pb-4">
                   <div className="flex items-center gap-3.5">
@@ -150,7 +150,7 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
                 </div>
 
                 {/* Meta Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 py-3 border-b border-[#EADBCE] text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-4 print:grid-cols-4 gap-2.5 py-3 border-b border-[#EADBCE] text-xs">
                   <div>
                     <span className="text-zinc-500 block text-[11px]">Tanggal Pesan:</span>
                     <span className="font-semibold text-[#2C1F17]">{invoice.orderDate}</span>
@@ -170,8 +170,8 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
                 </div>
 
                 {/* Customer & Product Information */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-3 border-b border-[#EADBCE] text-xs">
-                  <div className="space-y-1.5 bg-[#FAF6F0]/60 p-3 rounded-xl border border-[#EADBCE]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3 py-3 border-b border-[#EADBCE] text-xs">
+                  <div className="space-y-1.5 bg-[#FAF6F0] p-3 rounded-xl border border-[#EADBCE]">
                     <div className="flex justify-between">
                       <span className="text-[#7A5239]">Nama Pemesan :</span>
                       <span className="font-bold text-[#2C1F17]">{invoice.customerName}</span>
@@ -180,7 +180,7 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
                       <span className="text-[#7A5239]">Jenis Kelamin Pemesan :</span>
                       <span className="font-semibold">{invoice.customerGender}</span>
                     </div>
-                    <div className="border-t border-[#EADBCE]/60 pt-1 flex justify-between">
+                    <div className="border-t border-[#EADBCE] pt-1 flex justify-between">
                       <span className="text-[#7A5239]">Nama Penerima :</span>
                       <span className="font-bold text-[#2C1F17]">{invoice.recipientName || '-'}</span>
                     </div>
@@ -190,7 +190,7 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="space-y-1.5 bg-[#FAF6F0]/60 p-3 rounded-xl border border-[#EADBCE]">
+                  <div className="space-y-1.5 bg-[#FAF6F0] p-3 rounded-xl border border-[#EADBCE]">
                     <div className="flex justify-between">
                       <span className="text-[#7A5239]">Nama Produk :</span>
                       <span className="font-bold text-[#2C1F17] text-right">{invoice.productName}</span>
@@ -203,7 +203,7 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
                       <span className="text-[#7A5239]">Ukuran :</span>
                       <span className="font-semibold">{invoice.size}</span>
                     </div>
-                    <div className="border-t border-[#EADBCE]/60 pt-1 flex justify-between">
+                    <div className="border-t border-[#EADBCE] pt-1 flex justify-between">
                       <span className="text-[#7A5239]">Skema Warna :</span>
                       <span className="font-semibold text-right">{invoice.colorScheme || '-'}</span>
                     </div>
@@ -211,8 +211,8 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
                 </div>
 
                 {/* Greeting & Notes */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-3 border-b border-[#EADBCE]">
-                  <div className="p-3 rounded-xl border-2 border-dashed border-[#C48B71]/70 bg-[#FAF6F0]/40">
+                <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3 py-3 border-b border-[#EADBCE]">
+                  <div className="p-3 rounded-xl border-2 border-dashed border-[#C48B71]/70 bg-[#FAF6F0]/60">
                     <span className="text-[10px] uppercase font-bold tracking-wider text-[#A85842] block mb-0.5">
                       💌 Teks Kartu Ucapan:
                     </span>
@@ -221,7 +221,7 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-xl border border-[#EADBCE] bg-[#FAF6F0]/30 text-xs">
+                  <div className="p-3 rounded-xl border border-[#EADBCE] bg-[#FAF6F0]/50 text-xs">
                     <span className="text-[10px] uppercase font-bold tracking-wider text-[#7A5239] block mb-0.5">
                       📝 Catatan Pemesan:
                     </span>
@@ -271,7 +271,7 @@ export const BatchInvoicePrintModal: React.FC<BatchInvoicePrintModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="pt-4 border-t border-[#EADBCE] flex items-center justify-between text-[11px] text-zinc-500">
+                <div className="pt-4 border-t border-[#EADBCE] flex items-center justify-between text-[11px] text-zinc-500 pb-2 print:pb-6">
                   <p className="font-serif italic text-[#7A5239]">
                     “Thank you for ordering with Tov’s Fleur!”
                   </p>

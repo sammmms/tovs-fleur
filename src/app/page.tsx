@@ -139,7 +139,7 @@ export default function Home() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full pb-16">
+      <main className={`flex-1 w-full pb-16 ${selectedInvoiceForPrint || selectedBatchInvoices.length > 0 ? 'no-print' : ''}`}>
         {activeTab === 'bio' && (
           <BioCardView
             onGoToCatalog={() => setActiveTab('catalog')}

@@ -45,35 +45,117 @@ body {
   background: #A85842;
 }
 
-/* Print Stylesheet for Invoices & Greeting Cards */
+/* ==========================================================================
+   PRINT STYLESHEET (PROFESSIONAL A4 INVOICES & GREETING CARDS)
+   ========================================================================== */
 @media print {
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
+  @page {
+    size: A4 portrait;
+    margin: 8mm 12mm 10mm 12mm;
   }
-  
-  .no-print {
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-sizing: border-box !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #2C1F17 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    font-size: 12px;
+  }
+
+  /* Universal print hide */
+  .no-print,
+  header,
+  footer.no-print,
+  nav {
     display: none !important;
   }
-  
-  .print-only {
-    display: block !important;
-  }
 
-  .print-card-only {
-    display: block !important;
-  }
-
-  .print-container {
+  /* Reset modal overlays: no fixed positioning, no backdrop dark scrim, no clipping */
+  .print-modal-wrapper {
+    position: static !important;
+    inset: auto !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     padding: 0 !important;
     margin: 0 !important;
+    width: 100% !important;
     max-width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
     box-shadow: none !important;
     border: none !important;
+    z-index: auto !important;
   }
 
-  @page {
-    margin: 12mm 15mm 15mm 15mm;
-    size: A4 portrait;
+  /* Reset modal box: no rounded corners, no popup border, 100% width of A4 printable area */
+  .print-modal-content {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  /* Single invoice document sheet */
+  .print-invoice-sheet {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 0 6mm 0 !important;
+    background: #ffffff !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Batch invoice multi-page printing */
+  .batch-invoice-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 0 8mm 0 !important;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .batch-invoice-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Greeting Card Printing (10cm x 7cm standard card) */
+  .print-card-only {
+    display: block !important;
+    margin: 30mm auto !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }
