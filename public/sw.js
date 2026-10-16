@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tovs-fleur-v3';
+const CACHE_NAME = 'tovs-fleur-v4';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',

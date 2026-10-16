@@ -56,7 +56,7 @@ body {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm 8mm 8mm 8mm;
+    margin: 0; /* Zero margin suppresses browser headers (URL https://... and page title) and footers in Chrome/Arc */
   }
 
   * {
@@ -71,6 +71,10 @@ body {
   body,
   #__next,
   .min-h-screen,
+  div.min-h-screen,
+  body.min-h-screen,
+  [class*="bg-[#FAF6F0]"],
+  [class*="bg-[#FAF6F0]/"],
   main,
   section,
   article,
@@ -154,7 +158,7 @@ body {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 0 0 6mm 0 !important;
+    padding: 10mm 12mm !important;
     background: #ffffff !important;
     border: none !important;
     border-radius: 0 !important;
@@ -162,6 +166,7 @@ body {
     overflow: visible !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    box-sizing: border-box !important;
   }
 
   /* Batch invoice multi-page printing */
@@ -169,7 +174,7 @@ body {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 0 0 8mm 0 !important;
+    padding: 10mm 12mm !important;
     background: #ffffff !important;
     border: none !important;
     box-shadow: none !important;
@@ -177,6 +182,7 @@ body {
     break-after: page !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    box-sizing: border-box !important;
   }
 
   .batch-invoice-page:last-child {
@@ -217,7 +223,8 @@ body {
     display: block !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 8mm !important;
+    box-sizing: border-box !important;
   }
 
   /* Layout 1: 4 Cards per A4 Page (2x2 Grid) */
@@ -268,7 +275,7 @@ body {
     box-sizing: border-box !important;
     margin: 0 !important;
     padding: 1.5mm !important;
-    background: #ffffff !important;
+    background: transparent !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     box-shadow: none !important;
@@ -288,9 +295,8 @@ body {
     letter-spacing: 0.3px !important;
   }
 
-  /* Standard Bouquet Card Body (Pure White Background, Zero Ink Waste) */
-  .card-printable-item,
-  #printable-greeting-card {
+  /* Card Body in Print: RETAIN THEME BACKGROUND (Card background is preserved, page background is 100% pure white) */
+  .card-printable-item {
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
@@ -298,12 +304,7 @@ body {
     height: calc(100% - 3mm) !important;
     margin: 0 !important;
     padding: 3.5mm 4.5mm !important;
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    background-image: none !important;
-    color: #2C1F17 !important;
-    border: 1.2pt solid #7A5239 !important;
-    border-radius: 2.5mm !important;
+    border-radius: 2mm !important;
     box-shadow: none !important;
     filter: none !important;
     position: relative !important;
@@ -311,68 +312,7 @@ body {
     overflow: hidden !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-  }
-
-  .card-printable-item *,
-  #printable-greeting-card * {
-    background-color: transparent !important;
-    background-image: none !important;
-    text-shadow: none !important;
-    box-shadow: none !important;
-    filter: none !important;
-  }
-
-  .card-printable-item .card-inner-border,
-  #printable-greeting-card .card-inner-border {
-    border: 0.6pt dashed #7A5239 !important;
-    opacity: 0.55 !important;
-  }
-
-  .card-printable-item .card-flourish,
-  #printable-greeting-card .card-flourish {
-    color: #7A5239 !important;
-    -webkit-text-fill-color: #7A5239 !important;
-    opacity: 0.65 !important;
-  }
-
-  .card-printable-item .card-brand-title,
-  #printable-greeting-card .card-brand-title {
-    color: #7A5239 !important;
-    -webkit-text-fill-color: #7A5239 !important;
-    font-size: 6.5pt !important;
-    letter-spacing: 2px !important;
-  }
-
-  .card-printable-item .card-headline,
-  #printable-greeting-card .card-headline {
-    color: #2C1F17 !important;
-    -webkit-text-fill-color: #2C1F17 !important;
-    font-size: 13pt !important;
-    line-height: 1.15 !important;
-    font-style: italic !important;
-  }
-
-  .card-printable-item .card-recipient,
-  #printable-greeting-card .card-recipient {
-    color: #A85842 !important;
-    -webkit-text-fill-color: #A85842 !important;
-    font-size: 9.5pt !important;
-    font-weight: bold !important;
-  }
-
-  .card-printable-item .card-message,
-  #printable-greeting-card .card-message {
-    color: #4A3528 !important;
-    -webkit-text-fill-color: #4A3528 !important;
-    font-size: 7.5pt !important;
-    font-style: italic !important;
-    line-height: 1.25 !important;
-  }
-
-  .card-printable-item .card-sender,
-  #printable-greeting-card .card-sender {
-    color: #7A5239 !important;
-    -webkit-text-fill-color: #7A5239 !important;
-    font-size: 7pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }

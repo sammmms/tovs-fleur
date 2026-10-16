@@ -63,10 +63,36 @@ export const GreetingCardModal: React.FC<GreetingCardModalProps> = ({
         <span>- - ✂</span>
       </div>
 
-      {/* Card Body */}
-      <div className="card-printable-item">
+      {/* Card Body - Keeping full theme styling and background! */}
+      <div
+        className={`card-printable-item ${
+          theme === 'minimalist'
+            ? 'bg-white text-[#2C1F17] border-2 border-[#7A5239]'
+            : theme === 'graduation'
+            ? 'bg-zinc-950 text-white border-2 border-amber-400'
+            : theme === 'birthday'
+            ? 'bg-[#FFF2F5] text-[#4A202A] border-2 border-pink-300'
+            : theme === 'romance'
+            ? 'bg-[#2D0A13] text-rose-50 border-2 border-[#C48B71]'
+            : theme === 'congratulations'
+            ? 'bg-[#07241B] text-emerald-50 border-2 border-amber-300'
+            : 'bg-[#EDE4D8] text-[#2C1F17] border-2 border-[#D8C3B1]'
+        }`}
+      >
         {/* Inner flourish dashed border */}
-        <div className="card-inner-border absolute inset-1.5 rounded-lg pointer-events-none" />
+        <div className={`card-inner-border absolute inset-1.5 rounded-lg pointer-events-none border ${
+          theme === 'minimalist'
+            ? 'border-[#7A5239]/40 border-dashed'
+            : theme === 'graduation'
+            ? 'border-amber-400/40'
+            : theme === 'birthday'
+            ? 'border-pink-300/60'
+            : theme === 'romance'
+            ? 'border-[#C48B71]/40'
+            : theme === 'congratulations'
+            ? 'border-amber-300/40'
+            : 'border-[#D8C3B1]/80'
+        }`} />
 
         {/* Corner Ornamental Accents */}
         <div className="card-flourish absolute top-1 left-1.5 text-[9px] select-none opacity-60">❦</div>
@@ -76,7 +102,7 @@ export const GreetingCardModal: React.FC<GreetingCardModalProps> = ({
 
         {/* Top Logo Badge */}
         <div className="flex flex-col items-center">
-          <div className="w-6 h-6 rounded-full overflow-hidden border border-[#7A5239]/40 p-0.5 bg-white mb-0.5">
+          <div className="w-6 h-6 rounded-full overflow-hidden border border-current/30 p-0.5 bg-white/20 mb-0.5">
             <Image
               src="/logo.png"
               alt="Tov's Fleur Logo"
@@ -85,23 +111,49 @@ export const GreetingCardModal: React.FC<GreetingCardModalProps> = ({
               className="w-full h-full object-contain"
             />
           </div>
-          <span className="card-brand-title font-serif tracking-[0.25em] text-[7.5px] uppercase font-bold text-[#7A5239]">
+          <span className={`card-brand-title font-serif tracking-[0.25em] text-[7.5px] uppercase font-bold ${
+            theme === 'minimalist' ? 'text-[#7A5239]' : theme === 'graduation' ? 'text-amber-300' : theme === 'birthday' ? 'text-pink-600' : theme === 'romance' ? 'text-rose-300' : theme === 'congratulations' ? 'text-amber-300' : 'text-[#7A5239]'
+          }`}>
             TOV’S FLEUR
           </span>
         </div>
 
         {/* Card Main Body */}
         <div className="my-auto py-0.5 space-y-0.5 text-center">
-          <h4 className="card-headline font-serif italic text-sm font-bold leading-tight text-[#2C1F17]">
+          <h4 className={`card-headline font-serif italic text-sm font-bold leading-tight ${
+            theme === 'minimalist'
+              ? 'text-[#2C1F17]'
+              : theme === 'graduation'
+              ? 'text-amber-200'
+              : theme === 'birthday'
+              ? 'text-pink-700'
+              : theme === 'romance'
+              ? 'text-rose-200'
+              : theme === 'congratulations'
+              ? 'text-amber-200'
+              : 'text-[#2C1F17]'
+          }`}>
             {headline}
           </h4>
 
-          <p className="card-recipient font-sans font-bold text-xs tracking-wide text-[#A85842]">
+          <p className={`card-recipient font-sans font-bold text-xs tracking-wide ${
+            theme === 'minimalist'
+              ? 'text-[#A85842]'
+              : theme === 'graduation'
+              ? 'text-amber-100'
+              : theme === 'birthday'
+              ? 'text-[#6A2B3D]'
+              : theme === 'romance'
+              ? 'text-white'
+              : theme === 'congratulations'
+              ? 'text-white'
+              : 'text-[#A85842]'
+          }`}>
             {recipient}
           </p>
 
           {message && (
-            <p className="card-message font-serif text-[10px] italic max-w-[85mm] mx-auto px-1 line-clamp-2 text-[#4A3528]">
+            <p className="card-message font-serif text-[10px] italic max-w-[85mm] mx-auto px-1 line-clamp-2 opacity-90">
               "{message}"
             </p>
           )}
@@ -110,7 +162,7 @@ export const GreetingCardModal: React.FC<GreetingCardModalProps> = ({
         {/* Card Footer */}
         <div className="card-sender text-right pr-1">
           {sender && (
-            <p className="text-[9px] font-medium italic text-[#7A5239]">
+            <p className="text-[9px] font-medium italic opacity-85">
               With Love, <span className="font-bold not-italic">{sender}</span>
             </p>
           )}
