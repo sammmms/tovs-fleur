@@ -14,12 +14,12 @@ interface SupabaseSetupModalProps {
 }
 
 const SQL_SCHEMA = `-- ==========================================================
--- TOV'S FLEUR - DATABASE SETUP SCRIPT
+-- TOV'S FLEUR - DATABASE SETUP SCRIPT (PREFIX: tovs_fleur_)
 -- Paste this into Supabase SQL Editor and click "RUN"
 -- ==========================================================
 
--- 1. Create Invoices Table
-create table if not exists public.invoices (
+-- 1. Create Invoices Table with prefix
+create table if not exists public.tovs_fleur_invoices (
   id text primary key,
   invoice_number text not null,
   order_date text not null,
@@ -43,17 +43,21 @@ create table if not exists public.invoices (
 );
 
 -- 2. Enable Row Level Security (RLS)
-alter table public.invoices enable row level security;
+alter table public.tovs_fleur_invoices enable row level security;
 
 -- 3. Policy: Allow full access for anon key
-drop policy if exists "Enable all access for anon" on public.invoices;
-create policy "Enable all access for anon" on public.invoices
+drop policy if exists "Enable all access for anon" on public.tovs_fleur_invoices;
+create policy "Enable all access for anon" on public.tovs_fleur_invoices
   for all
   using (true)
   with check (true);
 
 -- 4. Enable Realtime updates
-alter publication supabase_realtime add table public.invoices;
+alter publication supabase_realtime add table public.tovs_fleur_invoices;
+
+-- 5. Backwards compatibility view
+create or replace view public.invoices as
+  select * from public.tovs_fleur_invoices;
 `;
 
 export const SupabaseSetupModal: React.FC<SupabaseSetupModalProps> = ({

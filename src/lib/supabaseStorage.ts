@@ -75,15 +75,17 @@ export function rowToInvoice(row: SupabaseInvoiceRow): Invoice {
   };
 }
 
+export const TOVS_FLEUR_INVOICES_TABLE = 'tovs_fleur_invoices';
+
 /**
- * Fetch all invoices from Supabase table 'invoices'.
+ * Fetch all invoices from Supabase table 'tovs_fleur_invoices'.
  * If successful, syncs to localStorage cache and returns the invoices.
  */
 export async function fetchInvoices(): Promise<{ data: Invoice[]; source: 'supabase' | 'local'; error?: any }> {
   try {
     const supabase = createClient();
     const { data, error } = await supabase
-      .from('invoices')
+      .from(TOVS_FLEUR_INVOICES_TABLE)
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -118,7 +120,7 @@ export async function saveInvoiceWithSync(invoice: Invoice): Promise<{ success: 
   try {
     const supabase = createClient();
     const row = invoiceToRow(invoice);
-    const { error } = await supabase.from('invoices').upsert(row, { onConflict: 'id' });
+    const { error } = await supabase.from(TOVS_FLEUR_INVOICES_TABLE).upsert(row, { onConflict: 'id' });
 
     if (error) {
       console.warn('Supabase upsert warning:', error.message);
@@ -140,7 +142,7 @@ export async function deleteInvoiceWithSync(id: string): Promise<{ success: bool
 
   try {
     const supabase = createClient();
-    const { error } = await supabase.from('invoices').delete().eq('id', id);
+    const { error } = await supabase.from(TOVS_FLEUR_INVOICES_TABLE).delete().eq('id', id);
 
     if (error) {
       console.warn('Supabase delete warning:', error.message);
@@ -161,7 +163,7 @@ export async function syncLocalInvoicesToSupabase(localInvoices: Invoice[]): Pro
   try {
     const supabase = createClient();
     const rows = localInvoices.map(invoiceToRow);
-    const { error } = await supabase.from('invoices').upsert(rows, { onConflict: 'id' });
+    const { error } = await supabase.from(TOVS_FLEUR_INVOICES_TABLE).upsert(rows, { onConflict: 'id' });
 
     if (error) {
       return { count: 0, error };
@@ -180,10 +182,10 @@ export function subscribeToInvoiceChanges(onChange: () => void): () => void {
   try {
     const supabase = createClient();
     const channel = supabase
-      .channel('public:invoices')
+      .channel('public:tovs_fleur_invoices')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'invoices' },
+        { event: '*', schema: 'public', table: TOVS_FLEUR_INVOICES_TABLE },
         () => {
           onChange();
         }
